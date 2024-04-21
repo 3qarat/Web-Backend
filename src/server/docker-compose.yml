@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  3qarat-server:
+    container_name: '3qarat-server-container'
+    image: 3qarat-server
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
