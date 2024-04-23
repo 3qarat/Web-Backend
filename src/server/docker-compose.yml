@@ -5,6 +5,26 @@ services:
     image: 3qarat-server
     build: .
     ports:
-      - "8080:8080"
+      - "8181:8181"
     env_file:
       - ./.env
+    volumes:
+      - ./:/server
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

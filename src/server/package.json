@@ -20,7 +20,8 @@
   "homepage": "https://github.com/3qarat/WebApp#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
