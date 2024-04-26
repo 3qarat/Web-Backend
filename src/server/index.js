@@ -7,7 +7,6 @@ const app = express();
 app.use(express.json());
 
 app.get("/", async (req, res, next) => {
-  const result = await pool.query("show tables");
   res.json({
     status: "success",
     message: "hello world",

@@ -22,9 +22,14 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - 3qarat-vol:/var/lib/mysql
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+  
+volumes:
+    3qarat-vol:
