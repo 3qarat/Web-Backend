@@ -1,17 +1,21 @@
 import express from "express";
 import config from "./config/config.js";
+import restRouter from "./api/api.routes.js";
+import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 
 const app = express();
 
 //mw
 app.use(express.json());
 
-app.get("/", async (req, res, next) => {
-  res.json({
-    status: "success",
-    message: "hello world",
-  });
+//routes
+app.use("/api", restRouter);
+app.all("*", (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
+
+//global error handler
+app.use(globalErrorHandler);
 
 const PORT = config.PORT;
 app.listen(PORT, () => {

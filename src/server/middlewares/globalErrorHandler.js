@@ -20,7 +20,7 @@ export default (err, req, res, next) => {
   if (err.sqlState == 23000) err = handleDuplicateFieldsDB(err);
   if (err.sqlState == 22007) err = handleInvalidDate(err);
 
-  if (config.NODE_ENV == "dev" || config.NODE_ENV == "test") {
+  if (config.NODE_ENV == "development" || config.NODE_ENV == "test") {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
