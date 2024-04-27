@@ -19,26 +19,46 @@ export const signup = async ({
   password,
   role,
   profile_picture = null,
+  mobile_num,
 }) => {
-  if (!username || !email || !password || !role) {
+  if (!username || !email || !password || !role || !mobile_num) {
     throw new AppError(
-      "please provide all required fields (username, email, password and role)",
+      "please provide all required fields (username, email, password and role, mobile_num)",
       400
     );
   }
 
-  const sql = `insert into user(username, email, password, role ,profile_picture) values (?, ?, ?, ?, ?)`;
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
 
-  const result = await pool.query(sql, [
-    username,
-    email,
-    await hashPassword(password),
-    role,
-    profile_picture,
-  ]);
+    let sql = `insert into user(username, email, password, role ,profile_picture) values (?, ?, ?, ?, ?)`;
+    const [result] = await connection.query(sql, [
+      username,
+      email,
+      await hashPassword(password),
+      role,
+      profile_picture,
+    ]);
 
-  console.log(result);
-  return result;
+    const contactPromises = mobile_num.map((num) =>
+      connection.query(
+        "insert into contact(user_id, mobile_num) values (?, ?)",
+        [result.insertId, num]
+      )
+    );
+
+    await Promise.all(contactPromises);
+
+    await connection.commit();
+
+    return result.insertId;
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
 };
 
 export const login = async ({ username, password }) => {
@@ -48,7 +68,10 @@ export const login = async ({ username, password }) => {
   let sql = "select id, password from user where username = ?";
   const [rows] = await pool.query(sql, [username]);
 
-  if (rows.length === 0 || !(await verifyPassword(password, rows[0].password))) {
+  if (
+    rows.length === 0 ||
+    !(await verifyPassword(password, rows[0].password))
+  ) {
     throw new AppError("incorrect email or password");
   }
 

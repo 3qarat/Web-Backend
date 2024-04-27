@@ -1,0 +1,10 @@
+what is the difference btw pool.query and await pool.getconnection? 
+
+1. Using pool.query(...)
+The pool.query(...) method is a shortcut for executing a single SQL query against the database using an internally managed connection from the pool. This method abstracts away the details of connection management. It automatically gets a connection from the pool, executes the query, and then releases the connection back to the pool. This is convenient for executing standalone queries where you do not need to maintain the state of a connection across multiple queries.
+
+2. Using await pool.getConnection() then connection.query(...)
+pool.getConnection() fetches a connection from the pool, which you can then use to execute one or more queries. After using the connection, you must manually release it back to the pool. This method is useful when you need to perform multiple queries that depend on each other, such as transactions or a sequence of queries where the output of one influences the input of another.
+
+
+
