@@ -1,6 +1,5 @@
 import config from "../config/config.js";
 import AppError from "../utils/appError.js";
-
 const handleDuplicateFieldsDB = (err) => {
   const regex = /(?:\.)(\w+)/; //from chatgpt
   const match = err.message.match(regex)[1];
