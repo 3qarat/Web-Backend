@@ -50,3 +50,11 @@ export const updateApartment = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const deleteApartment = catchAsync(async (req, res, next) => {
+  await apartmentService.deleteApartment(req.params.id);
+
+  res.status(200).json({
+    status: "success",
+  });
+});

@@ -12,6 +12,7 @@ router
 router
   .route("/:id")
   .get(apartmentController.getApartmentById)
-  .put(apartmentController.updateApartment);
+  .put(apartmentController.updateApartment)
+  .delete(apartmentController.deleteApartment);
 
 export default router;

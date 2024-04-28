@@ -188,4 +188,11 @@ export const updateApartment = async (
   }
 };
 
-export const deleteApartment = () => {};
+export const deleteApartment = async (apartment_id) => {
+  const sql = `
+    delete
+    from apartment
+    where id = ?
+  `;
+  await pool.query(sql, [apartment_id]);
+};
