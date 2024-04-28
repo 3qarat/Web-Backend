@@ -19,7 +19,7 @@ export const getAllApartments = catchAsync(async (req, res, next) => {
   const apartments = await apartmentService.getAllApartments(req.user.id);
 
   res.status(200).json({
-    status: "sucess",
+    status: "success",
     data: {
       apartments,
     },
@@ -28,11 +28,25 @@ export const getAllApartments = catchAsync(async (req, res, next) => {
 
 export const getApartmentById = catchAsync(async (req, res, next) => {
   const apartment = await apartmentService.getApartmentById(req.params.id);
-
+  const result = await apartmentService.updateApartment();
   res.status(200).json({
     status: "success",
     data: {
       apartment,
+    },
+  });
+});
+
+export const updateApartment = catchAsync(async (req, res, next) => {
+  const affectedRows = await apartmentService.updateApartment(
+    req.body,
+    req.params.id
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      affectedRows,
     },
   });
 });

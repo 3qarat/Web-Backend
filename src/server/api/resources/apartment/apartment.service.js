@@ -107,11 +107,85 @@ export const getApartmentById = async (apartment_id) => {
       apartment[row.id].photos.push(row.photos);
     }
   });
-  
-  const apartmentArr = Object.values(apartment)
+
+  const apartmentArr = Object.values(apartment);
   return apartmentArr;
 };
 
-export const updateApartment = () => {};
+export const updateApartment = async (
+  {
+    location,
+    size,
+    num_bedrooms,
+    num_bathrooms,
+    amenities,
+    price,
+    status,
+    rate,
+    photos,
+  },
+  apartment_id
+) => {
+  const connection = await pool.getConnection();
+  let sql;
+  try {
+    await connection.beginTransaction();
+
+    sql = `
+      update apartment
+      set 
+        location = ?,
+        size = ?,
+        num_bedrooms = ?,
+        num_bathrooms = ?, 
+        amenities = ?,
+        price = ?,
+        status = ?,
+        rate = ?
+      where id = ?
+    `;
+
+    const [result] = await connection.query(sql, [
+      location,
+      size,
+      num_bedrooms,
+      num_bathrooms,
+      amenities,
+      price,
+      status,
+      rate,
+      apartment_id,
+    ]);
+
+    if (result.affectedRows === 0) {
+      throw new AppError(`no apartment found with ID ${apartment_id}`, 400);
+    }
+
+    if (photos?.length > 0) {
+      await connection.query(
+        "delete from apartment_Photos where apartment_id = ? ",
+        [apartment_id]
+      );
+
+      sql = `
+        insert into apartment_Photos(apartment_id, photos)
+        values(?, ?)
+      `;
+      const apartmentPhotosPromises = photos.map((photo) =>
+        connection.query(sql, [apartment_id, photo])
+      );
+
+      await Promise.all(apartmentPhotosPromises);
+    }
+
+    await connection.commit();
+    return result.affectedRows;
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
+};
 
 export const deleteApartment = () => {};

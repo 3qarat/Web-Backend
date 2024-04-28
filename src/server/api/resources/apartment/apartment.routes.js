@@ -9,6 +9,9 @@ router
   .route("/")
   .post(apartmentController.createApartment)
   .get(apartmentController.getAllApartments);
-router.route("/:id").get(apartmentController.getApartmentById);
+router
+  .route("/:id")
+  .get(apartmentController.getApartmentById)
+  .put(apartmentController.updateApartment);
 
 export default router;
