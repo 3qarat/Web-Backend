@@ -2,10 +2,12 @@ import catchAsync from "../../../utils/catchAsync.js";
 import * as userService from "./user.service.js";
 
 export const signup = catchAsync(async (req, res, next) => {
-  const insertedId = await userService.signup(req.body);
+  const user_id = await userService.signup(req.body);
   res.status(201).json({
     status: "success",
-    user_id: insertedId,
+    data: {
+      user_id,
+    },
   });
 });
 
