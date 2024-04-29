@@ -55,6 +55,96 @@ export const createApartment = async (
   }
 };
 
+export const getAllApartmentsBasedOnFilters = async ({
+  location,
+  minSize,
+  maxSize,
+  minBedrooms,
+  maxBedrooms,
+  minBathrooms,
+  maxBathrooms,
+  minPrice,
+  maxPrice,
+  status,
+  minRate,
+  maxRate,
+}) => {
+  let sql = `
+    select a.id, a.location, a.size, a.num_bedrooms, a.num_bathrooms, a.amenities, a.price, a.status, a.rate, p.photos
+    from apartment as a
+    left join apartment_Photos as p
+    on a.id = p.apartment_id
+    where 1 = 1`;
+  let params = [];
+  let apartments = [];
+
+  if (location) {
+    sql += " and location = ? ";
+    params.push(location);
+  }
+  if (minSize) {
+    sql += " and size >= ? ";
+    params.push(minSize);
+  }
+  if (maxSize) {
+    sql += " and size <= ? ";
+    params.push(maxSize);
+  }
+  if (minBedrooms) {
+    sql += " and num_bedrooms >= ? ";
+    params.push(minBedrooms);
+  }
+  if (maxBedrooms) {
+    sql += " and num_bedrooms <= ? ";
+    params.push(maxBedrooms);
+  }
+  if (minBathrooms) {
+    sql += " and num_bathrooms >= ? ";
+    params.push(minBathrooms);
+  }
+  if (maxBathrooms) {
+    sql += " and num_bathrooms <= ? ";
+    params.push(maxBathrooms);
+  }
+  if (minPrice) {
+    sql += " and price >= ? ";
+    params.push(minPrice);
+  }
+  if (maxPrice) {
+    sql += " and price <= ? ";
+    params.push(maxPrice);
+  }
+  if (status) {
+    sql += " and status = ? ";
+    params.push(status);
+  }
+  if (minRate) {
+    sql += " and rate >= ? ";
+    params.push(minRate);
+  }
+  if (maxRate) {
+    sql += " and rate <= ? ";
+    params.push(maxRate);
+  }
+
+  const [rows] = await pool.query(sql, params);
+  rows.forEach((row) => {
+    if (!apartments[row.id]) {
+      apartments[row.id] = {
+        ...row,
+        photos: [],
+      };
+    }
+
+    if (row.photos) {
+      apartments[row.id].photos.push(row.photos);
+    }
+  });
+
+  const apartmentsArr = Object.values(apartments);
+  return apartmentsArr;
+};
+
 export const getAllUserApartments = async (user_id) => {
   let apartments = {};
 

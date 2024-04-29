@@ -8,7 +8,7 @@ router.use(protectedRoute);
 router
   .route("/")
   .post(apartmentController.createApartment)
-  .get(apartmentController.getAllUserApartments);
+  .get(apartmentController.getAllApartmentsBasedOnFilters);
 router
   .route("/:id")
   .get(apartmentController.getApartmentById)

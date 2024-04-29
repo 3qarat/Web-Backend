@@ -1,3 +1,4 @@
+import e from "express";
 import catchAsync from "../../../utils/catchAsync.js";
 import * as apartmentService from "./apartment.service.js";
 
@@ -14,6 +15,21 @@ export const createApartment = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const getAllApartmentsBasedOnFilters = catchAsync(
+  async (req, res, next) => {
+    const apartments = await apartmentService.getAllApartmentsBasedOnFilters(
+      req.query
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        apartments,
+      },
+    });
+  }
+);
 
 export const getAllUserApartments = catchAsync(async (req, res, next) => {
   const apartments = await apartmentService.getAllUserApartments(req.user.id);
