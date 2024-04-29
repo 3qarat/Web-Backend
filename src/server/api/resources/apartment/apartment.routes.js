@@ -13,6 +13,7 @@ router
   .route("/:id")
   .get(apartmentController.getApartmentById)
   .put(apartmentController.updateApartmentById)
+  .patch(apartmentController.dynamicUpdateApartmentById)
   .delete(apartmentController.deleteApartmentById);
 
 export default router;

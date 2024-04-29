@@ -286,3 +286,70 @@ export const deleteApartmentById = async (apartment_id) => {
   `;
   await pool.query(sql, [apartment_id]);
 };
+
+export const dynamicUpdateApartmentById = async (
+  {
+    location,
+    size,
+    num_bedrooms,
+    num_bathrooms,
+    amenities,
+    price,
+    status,
+    rate,
+  },
+  apartment_id
+) => {
+  let updates = [];
+  let params = [];
+
+  if (location) {
+    updates.push("location = ?");
+    params.push(location);
+  }
+  if (size) {
+    updates.push("size = ?");
+    params.push(size);
+  }
+  if (num_bedrooms) {
+    updates.push("num_bedrooms = ?");
+    params.push(num_bedrooms);
+  }
+  if (num_bathrooms) {
+    updates.push("num_bathrooms = ?");
+    params.push(num_bathrooms);
+  }
+  if (amenities) {
+    updates.push("amenities = ?");
+    params.push(amenities);
+  }
+  if (price) {
+    updates.push("price = ?");
+    params.push(price);
+  }
+  if (status) {
+    updates.push("status = ?");
+    params.push(status);
+  }
+  if (rate) {
+    updates.push("rate = ?");
+    params.push(rate);
+  }
+
+  if (updates.length === 0) {
+    throw new AppError("no valid fields provided for update.");
+  }
+
+  //*
+  params.push(apartment_id);
+
+  const sql = `update apartment set ${updates.join(", ")} where id = ?`;
+
+  const [result] = await pool.query(sql, params);
+
+  if (result.affectedRows === 0) {
+    throw new AppError(`no apartment found with ID ${apartment_id}`, 400);
+  }
+
+  return result.affectedRows;
+};
