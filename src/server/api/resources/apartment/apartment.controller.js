@@ -15,8 +15,8 @@ export const createApartment = catchAsync(async (req, res, next) => {
   });
 });
 
-export const getAllApartments = catchAsync(async (req, res, next) => {
-  const apartments = await apartmentService.getAllApartments(req.user.id);
+export const getAllUserApartments = catchAsync(async (req, res, next) => {
+  const apartments = await apartmentService.getAllUserApartments(req.user.id);
 
   res.status(200).json({
     status: "success",
@@ -28,7 +28,6 @@ export const getAllApartments = catchAsync(async (req, res, next) => {
 
 export const getApartmentById = catchAsync(async (req, res, next) => {
   const apartment = await apartmentService.getApartmentById(req.params.id);
-  const result = await apartmentService.updateApartment();
   res.status(200).json({
     status: "success",
     data: {
@@ -37,8 +36,8 @@ export const getApartmentById = catchAsync(async (req, res, next) => {
   });
 });
 
-export const updateApartment = catchAsync(async (req, res, next) => {
-  const affectedRows = await apartmentService.updateApartment(
+export const updateApartmentById = catchAsync(async (req, res, next) => {
+  const affectedRows = await apartmentService.updateApartmentById(
     req.body,
     req.params.id
   );
@@ -51,8 +50,8 @@ export const updateApartment = catchAsync(async (req, res, next) => {
   });
 });
 
-export const deleteApartment = catchAsync(async (req, res, next) => {
-  await apartmentService.deleteApartment(req.params.id);
+export const deleteApartmentById = catchAsync(async (req, res, next) => {
+  await apartmentService.deleteApartmentById(req.params.id);
 
   res.status(200).json({
     status: "success",

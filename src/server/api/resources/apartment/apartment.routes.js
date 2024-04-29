@@ -8,11 +8,11 @@ router.use(protectedRoute);
 router
   .route("/")
   .post(apartmentController.createApartment)
-  .get(apartmentController.getAllApartments);
+  .get(apartmentController.getAllUserApartments);
 router
   .route("/:id")
   .get(apartmentController.getApartmentById)
-  .put(apartmentController.updateApartment)
-  .delete(apartmentController.deleteApartment);
+  .put(apartmentController.updateApartmentById)
+  .delete(apartmentController.deleteApartmentById);
 
 export default router;

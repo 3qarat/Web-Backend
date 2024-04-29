@@ -55,7 +55,7 @@ export const createApartment = async (
   }
 };
 
-export const getAllApartments = async (user_id) => {
+export const getAllUserApartments = async (user_id) => {
   let apartments = {};
 
   const sql = `
@@ -112,7 +112,7 @@ export const getApartmentById = async (apartment_id) => {
   return apartmentArr;
 };
 
-export const updateApartment = async (
+export const updateApartmentById = async (
   {
     location,
     size,
@@ -188,7 +188,7 @@ export const updateApartment = async (
   }
 };
 
-export const deleteApartment = async (apartment_id) => {
+export const deleteApartmentById = async (apartment_id) => {
   const sql = `
     delete
     from apartment
