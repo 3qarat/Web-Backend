@@ -59,6 +59,10 @@ export const createTransaction = async ({
       user_id,
     ]);
 
+    sql = `insert into rented_sold_apartments(apartment_id, user_id) values (?, ?)`;
+
+    await connection.query(sql, [apartment_id, user_id]);
+
     await connection.commit();
     return result.insertId;
   } catch (err) {
@@ -68,4 +72,3 @@ export const createTransaction = async ({
     connection.release();
   }
 };
-
