@@ -15,6 +15,19 @@ export const createApartment = async (
   },
   user_id
 ) => {
+  if (
+    !location ||
+    !size ||
+    !num_bedrooms ||
+    !num_bathrooms ||
+    !amenities ||
+    !price ||
+    !status ||
+    !rate ||
+    !photos
+  ) {
+    throw new AppError("please provide all required fields", 400);
+  }
   const connection = await pool.getConnection();
   let sql;
 

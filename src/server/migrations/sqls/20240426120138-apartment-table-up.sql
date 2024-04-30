@@ -9,5 +9,5 @@ CREATE TABLE apartment (
   status ENUM('available', 'rented', 'sold') NOT NULL,
   rate DECIMAL(10,1) DEFAULT NULL,
   user_id INT NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES user(id)
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
