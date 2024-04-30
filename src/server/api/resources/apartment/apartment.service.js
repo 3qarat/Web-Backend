@@ -198,6 +198,10 @@ export const getApartmentById = async (apartment_id) => {
   `;
   const [rows] = await pool.query(sql, [apartment_id]);
 
+  if(rows.length === 0) {
+    throw new AppError(`apartment not found with Id ${apartment_id}` , 400)
+  }
+
   rows.forEach((row) => {
     if (!apartment[row.id]) {
       apartment[row.id] = {
