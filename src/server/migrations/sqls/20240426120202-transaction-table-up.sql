@@ -3,6 +3,7 @@ CREATE TABLE transactions (
   tx_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   tx_type ENUM('rental', 'sale') NOT NULL,
   price DECIMAL(10,2) NOT NULL,
+  payment_method VARCHAR(50) NOT NULL,
   apartment_id INT NOT NULL,
   user_id INT NOT NULL,
   FOREIGN KEY (apartment_id) REFERENCES apartment(id),

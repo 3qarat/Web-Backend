@@ -5,5 +5,6 @@ CREATE TABLE user (
   password VARCHAR(255) NOT NULL,
   role ENUM('landlord', 'tenant') NOT NULL,
   registration_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  profile_picture VARCHAR(255) DEFAULT NULL
+  profile_picture VARCHAR(255) DEFAULT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT 1
 );
