@@ -233,6 +233,10 @@ export const updateApartmentById = async (
   },
   apartment_id
 ) => {
+
+  if (!location || !size || !num_bathrooms || !num_bedrooms || !amenities || !price || !status || !rate ||!photos) {
+    throw new AppError('provide all required fields', 400)
+  }
   const connection = await pool.getConnection();
   let sql;
   try {
