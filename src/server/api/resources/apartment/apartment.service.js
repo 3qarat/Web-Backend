@@ -16,8 +16,13 @@ export const createApartment = async (
     latitude,
     longitude,
     amenities,
+    education,
+    health,
+    transportation,
+    floor,
+    vr_link,
     status,
-    photos
+    photos,
   },
   user_id
 ) => {
@@ -44,8 +49,8 @@ export const createApartment = async (
     await connection.beginTransaction();
 
     sql = `
-        insert into apartment(type, title, description, price, bedrooms, bathrooms, area, note, built_year, garages, latitude, longitude, amenities, status, user_id)
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        insert into apartment(type, title, description, price, bedrooms, bathrooms, area, note, built_year, garages, latitude, longitude, amenities, education, health, transportation , floor, vr_link, status, user_id)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? , ? ?)`;
     const [rows] = await connection.query(sql, [
       type,
       title,
@@ -60,6 +65,11 @@ export const createApartment = async (
       latitude,
       longitude,
       JSON.stringify(amenities),
+      education,
+      health,
+      transportation,
+      floor,
+      vr_link,
       status,
       user_id,
     ]);
@@ -97,7 +107,7 @@ export const getAllApartmentsBasedOnFilters = async ({
   maxRate,
 }) => {
   let sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.status, a.user_id, p.photos
+    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos
     from apartment as a
     left join apartment_Photos as p
     on a.id = p.apartment_id
@@ -168,11 +178,12 @@ export const getAllApartmentsBasedOnFilters = async ({
   return apartmentsArr;
 };
 
+//not used yet
 export const getAllUserApartments = async (user_id) => {
   let apartments = {};
 
   const sql = `
-      select a.id, a.location, a.size, a.num_bedrooms, a.num_bathrooms, a.amenities, a.price, a.status, a.rate, p.photos
+      select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities,a.education, a.health, a.transportation , floor, vr_link a.status, a.rate, a.user_id, p.photos
       from apartment as a
       left join apartment_Photos as p
       on a.id = p.apartment_id
@@ -200,7 +211,7 @@ export const getAllUserApartments = async (user_id) => {
 export const getApartmentById = async (apartment_id) => {
   let apartment = {};
   const sql = `
-    select a.id, a.location, a.size, a.num_bedrooms, a.num_bathrooms, a.amenities, a.price, a.status, a.rate, p.photos 
+    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos
     from apartment as a
     left join apartment_Photos as p
     on a.id = p.apartment_id
@@ -231,27 +242,42 @@ export const getApartmentById = async (apartment_id) => {
 
 export const updateApartmentById = async (
   {
-    location,
-    size,
-    num_bedrooms,
-    num_bathrooms,
-    amenities,
+    type,
+    title,
+    description,
     price,
+    bedrooms,
+    bathrooms,
+    area,
+    note,
+    built_year,
+    garages,
+    latitude,
+    longitude,
+    amenities,
+    education,
+    health,
+    transportation,
+    floor,
+    vr_link,
     status,
-    rate,
     photos,
   },
   apartment_id
 ) => {
   if (
-    !location ||
-    !size ||
-    !num_bathrooms ||
-    !num_bedrooms ||
-    !amenities ||
+    !type ||
+    !title ||
     !price ||
+    !bedrooms ||
+    !bathrooms ||
+    !area ||
+    !built_year ||
+    !garages ||
+    !latitude ||
+    !longitude ||
+    !amenities ||
     !status ||
-    !rate ||
     !photos
   ) {
     throw new AppError("provide all required fields", 400);
@@ -264,27 +290,50 @@ export const updateApartmentById = async (
     sql = `
       update apartment
       set 
-        location = ?,
-        size = ?,
-        num_bedrooms = ?,
-        num_bathrooms = ?, 
-        amenities = ?,
-        price = ?,
-        status = ?,
-        rate = ?
+          type = ?,
+          title = ?,
+          description = ?,
+          price = ?,
+          bedrooms = ?,
+          bathrooms = ?,
+          area = ?,
+          note = ?,
+          built_year = ?,
+          garages = ?,
+          latitude = ?,
+          longitude = ?,
+          amenities = ?,
+          education = ?, 
+          health = ?, 
+          transportation = ?,
+          floor = ?,
+          vr_link =? ,
+          status = ?,
+          photos = ?,
       where id = ?
     `;
 
     const [result] = await connection.query(sql, [
-      location,
-      size,
-      num_bedrooms,
-      num_bathrooms,
-      amenities,
+      type,
+      title,
+      description,
       price,
+      bedrooms,
+      bathrooms,
+      area,
+      note,
+      built_year,
+      garages,
+      latitude,
+      longitude,
+      amenities,
+      education,
+      health,
+      transportation,
+      floor,
+      vr_link,
       status,
-      rate,
-      apartment_id,
+      photos,
     ]);
 
     if (result.affectedRows === 0) {
@@ -329,12 +378,24 @@ export const deleteApartmentById = async (apartment_id) => {
 
 export const dynamicUpdateApartmentById = async (
   {
-    location,
-    size,
-    num_bedrooms,
-    num_bathrooms,
-    amenities,
+    type,
+    title,
+    description,
     price,
+    bedrooms,
+    bathrooms,
+    area,
+    note,
+    built_year,
+    garages,
+    latitude,
+    longitude,
+    amenities,
+    education,
+    health,
+    transportation,
+    floor,
+    vr_link,
     status,
     rate,
   },
@@ -343,29 +404,69 @@ export const dynamicUpdateApartmentById = async (
   let updates = [];
   let params = [];
 
-  if (location) {
-    updates.push("location = ?");
-    params.push(location);
+  if (type) {
+    updates.push("type = ?");
+    params.push(type);
   }
-  if (size) {
-    updates.push("size = ?");
-    params.push(size);
+  if (title) {
+    updates.push("title = ?");
+    params.push(title);
   }
-  if (num_bedrooms) {
-    updates.push("num_bedrooms = ?");
-    params.push(num_bedrooms);
+  if (description) {
+    updates.push("description = ?");
+    params.push(description);
   }
-  if (num_bathrooms) {
-    updates.push("num_bathrooms = ?");
-    params.push(num_bathrooms);
+  if (price) {
+    updates.push("price = ?");
+    params.push(price);
+  }
+  if (bedrooms) {
+    updates.push("bedrooms = ?");
+    params.push(bedrooms);
+  }
+  if (bathrooms) {
+    updates.push("bathrooms = ?");
+    params.push(bathrooms);
+  }
+  if (area) {
+    updates.push("area = ?");
+    params.push(area);
+  }
+  if (note) {
+    updates.push("note = ?");
+    params.push(note);
+  }
+  if (built_year) {
+    updates.push("built_year = ?");
+    params.push(built_year);
+  }
+  if (garages) {
+    updates.push("garages = ?");
+    params.push(garages);
+  }
+  if (latitude) {
+    updates.push("latitude = ?");
+    params.push(latitude);
+  }
+  if (longitude) {
+    updates.push("longitude = ?");
+    params.push(longitude);
   }
   if (amenities) {
     updates.push("amenities = ?");
     params.push(amenities);
   }
-  if (price) {
-    updates.push("price = ?");
-    params.push(price);
+  if (nearby) {
+    updates.push("nearby = ?");
+    params.push(nearby);
+  }
+  if (floor) {
+    updates.push("floor = ?");
+    params.push(floor);
+  }
+  if (vr_link) {
+    updates.push("vr_link = ?");
+    params.push(vr_link);
   }
   if (status) {
     updates.push("status = ?");
@@ -375,7 +476,18 @@ export const dynamicUpdateApartmentById = async (
     updates.push("rate = ?");
     params.push(rate);
   }
-
+  if (education) {
+    updates.push("education = ?");
+    params.push(education);
+  }
+  if (health) {
+    updates.push("health = ?");
+    params.push(health);
+  }
+  if (transportation) {
+    updates.push("transportation = ?");
+    params.push(transportation);
+  }
   if (updates.length === 0) {
     throw new AppError("no valid fields provided for update.");
   }
