@@ -3,49 +3,64 @@ import AppError from "../../../utils/appError.js";
 
 export const createApartment = async (
   {
-    location,
-    size,
-    num_bedrooms,
-    num_bathrooms,
-    amenities,
+    type,
+    title,
+    description,
     price,
+    bedrooms,
+    bathrooms,
+    area,
+    note,
+    built_year,
+    garages,
+    latitude,
+    longitude,
+    amenities,
     status,
-    rate,
-    photos,
+    photos
   },
   user_id
 ) => {
   if (
-    !location ||
-    !size ||
-    !num_bedrooms ||
-    !num_bathrooms ||
-    !amenities ||
+    !type ||
+    !title ||
     !price ||
+    !bedrooms ||
+    !bathrooms ||
+    !area ||
+    !built_year ||
+    !garages ||
+    !latitude ||
+    !longitude ||
+    !amenities ||
     !status ||
-    !rate ||
     !photos
   ) {
     throw new AppError("please provide all required fields", 400);
   }
   const connection = await pool.getConnection();
   let sql;
-
   try {
     await connection.beginTransaction();
 
     sql = `
-        insert into apartment(location, size, num_bedrooms, num_bathrooms, amenities, price, status, rate, user_id)
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        insert into apartment(type, title, description, price, bedrooms, bathrooms, area, note, built_year, garages, latitude, longitude, amenities, status, user_id)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const [rows] = await connection.query(sql, [
-      location,
-      size,
-      num_bedrooms,
-      num_bathrooms,
-      amenities,
+      type,
+      title,
+      description,
       price,
+      bedrooms,
+      bathrooms,
+      area,
+      note,
+      built_year,
+      garages,
+      latitude,
+      longitude,
+      JSON.stringify(amenities),
       status,
-      rate,
       user_id,
     ]);
 
@@ -69,9 +84,8 @@ export const createApartment = async (
 };
 
 export const getAllApartmentsBasedOnFilters = async ({
-  location,
-  minSize,
-  maxSize,
+  minArea,
+  maxArea,
   minBedrooms,
   maxBedrooms,
   minBathrooms,
@@ -83,7 +97,7 @@ export const getAllApartmentsBasedOnFilters = async ({
   maxRate,
 }) => {
   let sql = `
-    select a.id, a.location, a.size, a.num_bedrooms, a.num_bathrooms, a.amenities, a.price, a.status, a.rate, p.photos
+    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.status, a.user_id, p.photos
     from apartment as a
     left join apartment_Photos as p
     on a.id = p.apartment_id
@@ -91,32 +105,28 @@ export const getAllApartmentsBasedOnFilters = async ({
   let params = [];
   let apartments = [];
 
-  if (location) {
-    sql += " and location = ? ";
-    params.push(location);
-  }
-  if (minSize) {
-    sql += " and size >= ? ";
+  if (minArea) {
+    sql += " and area >= ? ";
     params.push(minSize);
   }
-  if (maxSize) {
-    sql += " and size <= ? ";
+  if (maxArea) {
+    sql += " and area <= ? ";
     params.push(maxSize);
   }
   if (minBedrooms) {
-    sql += " and num_bedrooms >= ? ";
+    sql += " and bedrooms >= ? ";
     params.push(minBedrooms);
   }
   if (maxBedrooms) {
-    sql += " and num_bedrooms <= ? ";
+    sql += " and bedrooms <= ? ";
     params.push(maxBedrooms);
   }
   if (minBathrooms) {
-    sql += " and num_bathrooms >= ? ";
+    sql += " and bathrooms >= ? ";
     params.push(minBathrooms);
   }
   if (maxBathrooms) {
-    sql += " and num_bathrooms <= ? ";
+    sql += " and bathrooms <= ? ";
     params.push(maxBathrooms);
   }
   if (minPrice) {
@@ -198,8 +208,8 @@ export const getApartmentById = async (apartment_id) => {
   `;
   const [rows] = await pool.query(sql, [apartment_id]);
 
-  if(rows.length === 0) {
-    throw new AppError(`apartment not found with Id ${apartment_id}` , 400)
+  if (rows.length === 0) {
+    throw new AppError(`apartment not found with Id ${apartment_id}`, 400);
   }
 
   rows.forEach((row) => {
@@ -233,9 +243,18 @@ export const updateApartmentById = async (
   },
   apartment_id
 ) => {
-
-  if (!location || !size || !num_bathrooms || !num_bedrooms || !amenities || !price || !status || !rate ||!photos) {
-    throw new AppError('provide all required fields', 400)
+  if (
+    !location ||
+    !size ||
+    !num_bathrooms ||
+    !num_bedrooms ||
+    !amenities ||
+    !price ||
+    !status ||
+    !rate ||
+    !photos
+  ) {
+    throw new AppError("provide all required fields", 400);
   }
   const connection = await pool.getConnection();
   let sql;
