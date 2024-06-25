@@ -21,7 +21,7 @@ export const signup = async ({
   profile_picture = null,
   mobile_num,
 }) => {
-  if (!username || !email || !password || !role || !mobile_num) {
+  if (!username || !email || !password || !mobile_num) {
     throw new AppError(
       "please provide all required fields (username, email, password and role, mobile_num)",
       400
@@ -32,12 +32,11 @@ export const signup = async ({
   try {
     await connection.beginTransaction();
 
-    let sql = `insert into user(username, email, password, role ,profile_picture) values (?, ?, ?, ?, ?)`;
+    let sql = `insert into user(username, email, password ,profile_picture) values (?, ?, ?, ?)`;
     const [result] = await connection.query(sql, [
       username,
       email,
       await hashPassword(password),
-      role,
       profile_picture,
     ]);
 
@@ -80,11 +79,3 @@ export const login = async ({ username, password }) => {
   });
   return token;
 };
-
-export const ensureAuthenticated = (req, res, next)  => {
-  if (req.isAuthenticated()) {
-    return next();
-  }else {
-    next(new AppError('please login to get access', 401))
-  }
-}

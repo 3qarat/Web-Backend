@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { protectedRoute } from "../user/passportConfig.js";
 import * as apartmentController from "./apartment.controller.js";
-import { ensureAuthenticated } from "../user/user.service.js";
+import { protectedRoute } from "../user/user.controller.js";
 
 const router = new Router();
 
-router.use(ensureAuthenticated);
+router.use(protectedRoute)
 router
   .route("/")
   .post(apartmentController.createApartment)
