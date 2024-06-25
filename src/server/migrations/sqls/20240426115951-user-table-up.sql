@@ -1,9 +1,10 @@
 CREATE TABLE user (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  google_id VARCHAR(255) NOT NULL,
   username VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  role ENUM('landlord', 'tenant') NOT NULL,
+  password VARCHAR(255) ,
+  role ENUM('landlord', 'tenant') ,
   registration_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   profile_picture VARCHAR(255) DEFAULT NULL,
   is_active BOOLEAN NOT NULL DEFAULT 1

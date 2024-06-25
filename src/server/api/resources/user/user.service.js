@@ -80,3 +80,11 @@ export const login = async ({ username, password }) => {
   });
   return token;
 };
+
+export const ensureAuthenticated = (req, res, next)  => {
+  if (req.isAuthenticated()) {
+    return next();
+  }else {
+    next(new AppError('please login to get access', 401))
+  }
+}
