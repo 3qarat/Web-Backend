@@ -15,6 +15,7 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0,
 });
 
+
 pool.on("connection", () =>
   console.log(`connected to ${config.MYSQL_DATABASE}`)
 );

@@ -8,6 +8,7 @@ import "./api/resources/user/passportConfig.js";
 import cors from "cors";
 import session from "express-session";
 import passport from "passport";
+import createTables from "./api/database/createTables.js";
 
 const app = express();
 
@@ -40,6 +41,10 @@ app.all("*", (req, res, next) => {
 app.use(globalErrorHandler);
 
 //start server
+console.log(config.NODE_ENV);
+if (config.NODE_ENV != "development" || config.NODE_ENV != "test") {
+  createTables();
+}
 const PORT = config.PORT;
 app.listen(PORT, () => {
   console.log(`app is listening on port ${PORT}`);
