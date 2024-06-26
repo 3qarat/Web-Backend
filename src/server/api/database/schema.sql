@@ -59,7 +59,7 @@ CREATE TABLE feedback (
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE apartment_photos (
+CREATE TABLE apartment_Photos (
   apartment_id INT NOT NULL,
   photos VARCHAR(255) NOT NULL,
   PRIMARY KEY (apartment_id, photos),

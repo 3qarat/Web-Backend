@@ -10,6 +10,7 @@ const {
   SESSION_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  MYSQL_HOST,
 } = process.env;
 
 export default {
@@ -22,4 +23,5 @@ export default {
   SESSION_SECRET,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  MYSQL_HOST,
 };
