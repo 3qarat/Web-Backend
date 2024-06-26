@@ -89,3 +89,21 @@ export const updatePassword = catchAsync(async (req, res, next) => {
     message,
   });
 });
+
+export const generateResetToken = catchAsync(async (req, res, next) => {
+  await userService.generateResetToken(req.body.email);
+
+  res.status(200).json({
+    status: "success",
+    message: "Password reset email sent",
+  });
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  await userService.resetPassword(req.params.token, req.body.password);
+
+  res.status(200).json({
+    status: "success",
+    message: "Password updated successfully",
+  });
+});

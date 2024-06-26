@@ -1,6 +1,8 @@
 import AppError from "../../../utils/appError.js";
 import pool from "../../database/index.js";
 import bcrypt from "bcryptjs";
+import moment from "moment";
+import { v4 as uuidv4, v4 } from "uuid";
 
 const hashPassword = async (plainPassword) => {
   const salt = await bcrypt.genSalt();
@@ -68,4 +70,61 @@ export const updatePassword = async (id, newPassword) => {
   } else {
     return "failed to update password";
   }
+};
+
+export const generateResetToken = async (email) => {
+  //get user from db
+  const [rows] = await pool.query("select id from user where email = ?", [
+    email,
+  ]);
+  const user = rows[0];
+  if (!user) {
+    next(new AppError("user not found", 400));
+  }
+
+  //generate token
+  const token = v4();
+  const expiresAt = moment().add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+
+  //store token in db
+  await pool.query(
+    "insert into password_reset_tokens(user_id, token, expires_at) values(?,?,?)",
+    [user.id, token, expiresAt]
+  );
+
+  //send via email
+};
+
+export const resetPassword = async (token, newPassword) => {
+  // get token from db
+  const [rows] = await pool.query(
+    "select * from password_reset_tokens where token = ?",
+    [token]
+  );
+  const resetToken = rows[0];
+  if (!resetPassword) {
+    next(new AppError("Token not found or expired", 404));
+  }
+
+  // check expiration date
+  const now = moment();
+  const expiresAt = moment(resetToken.expires_at);
+  if (now.isAfter(expiresAt)) {
+    await pool.query("delete from password_reset_tokens where id = ?", [
+      resetToken.id,
+    ]);
+    next(new AppError("Token expired", 400));
+  }
+
+  //update password
+  const password = await hashPassword(newPassword);
+  await pool.query("update user set password = ? where id = ?", [
+    password,
+    resetToken.user_id,
+  ]);
+
+  //delete token from db
+  await pool.query("delete from password_reset_tokens where id = ?", [
+    resetToken.id,
+  ]);
 };
