@@ -58,3 +58,15 @@ export const signup = async ({
   }
 };
 
+export const updatePassword = async (id, newPassword) => {
+  const password = await hashPassword(newPassword);
+  const sql = "update user set password = ? where id = ?";
+  const [result] = await pool.query(sql, [password, id]);
+  console.log(result);
+
+  if (result.affectedRows == 1) {
+    return "password updated successfully";
+  } else {
+    return "failed to update password";
+  }
+};

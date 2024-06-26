@@ -70,7 +70,6 @@ export const logout = catchAsync(async (req, res, next) => {
   });
 });
 
-// protected routes
 export const protectedRoute = (req, res, next) => {
   if (req.isAuthenticated()) {
     next();
@@ -78,3 +77,15 @@ export const protectedRoute = (req, res, next) => {
     next(new AppError("please login to get access", 401));
   }
 };
+
+export const updatePassword = catchAsync(async (req, res, next) => {
+  const message = await userService.updatePassword(
+    req.user.id,
+    req.body.password
+  );
+
+  res.status(200).json({
+    status: message.startsWith("failed") ? "fail" : "success",
+    message,
+  });
+});
