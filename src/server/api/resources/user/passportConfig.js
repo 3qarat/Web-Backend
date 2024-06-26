@@ -5,8 +5,7 @@ import pool from "../../database/index.js";
 import config from "../../../config/config.js";
 import { verifyPassword } from "./user.service.js";
 
-
-//local strategy config 
+//local strategy config
 passport.use(
   new LocalStrategy(
     {
@@ -15,10 +14,11 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const [rows] = pool.query(
+        const [rows] = await pool.query(
           "select id, username, email, password, profile_picture from user where email = ? ",
           [email]
         );
+
         let user = rows[0];
 
         if (!user) {
@@ -30,6 +30,7 @@ passport.use(
           done(null, false, { message: "incorrect email or password" });
         }
 
+        delete user.password
         done(null, user);
       } catch (err) {
         done(err);
