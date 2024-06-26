@@ -100,6 +100,7 @@ export const generateResetToken = catchAsync(async (req, res, next) => {
 });
 
 export const resetPassword = catchAsync(async (req, res, next) => {
+  console.log(req.params);
   await userService.resetPassword(req.params.token, req.body.password);
 
   res.status(200).json({

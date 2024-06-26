@@ -79,7 +79,7 @@ export const generateResetToken = async (email) => {
   ]);
   const user = rows[0];
   if (!user) {
-    next(new AppError("user not found", 400));
+    throw new AppError("user not found", 400);
   }
 
   //generate token
@@ -88,7 +88,7 @@ export const generateResetToken = async (email) => {
 
   //store token in db
   await pool.query(
-    "insert into password_reset_tokens(user_id, token, expires_at) values(?,?,?)",
+    "insert into password_reset_token(user_id, token, expires_at) values(?,?,?)",
     [user.id, token, expiresAt]
   );
 
@@ -98,22 +98,23 @@ export const generateResetToken = async (email) => {
 export const resetPassword = async (token, newPassword) => {
   // get token from db
   const [rows] = await pool.query(
-    "select * from password_reset_tokens where token = ?",
+    "select * from password_reset_token where token = ?",
     [token]
   );
   const resetToken = rows[0];
-  if (!resetPassword) {
-    next(new AppError("Token not found or expired", 404));
+  console.log(token);
+  if (!resetToken) {
+    throw new AppError("Token not found or expired", 404)
   }
 
   // check expiration date
   const now = moment();
   const expiresAt = moment(resetToken.expires_at);
   if (now.isAfter(expiresAt)) {
-    await pool.query("delete from password_reset_tokens where id = ?", [
+    await pool.query("delete from password_reset_token where id = ?", [
       resetToken.id,
     ]);
-    next(new AppError("Token expired", 400));
+    throw new AppError("Token expired", 400);
   }
 
   //update password
@@ -124,7 +125,7 @@ export const resetPassword = async (token, newPassword) => {
   ]);
 
   //delete token from db
-  await pool.query("delete from password_reset_tokens where id = ?", [
+  await pool.query("delete from password_reset_token where id = ?", [
     resetToken.id,
   ]);
 };
