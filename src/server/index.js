@@ -41,11 +41,14 @@ app.all("*", (req, res, next) => {
 app.use(globalErrorHandler);
 
 //start server
-console.log(config.NODE_ENV);
-if (config.NODE_ENV != "development" || config.NODE_ENV != "test") {
-  createTables();
-}
+
 const PORT = config.PORT;
-app.listen(PORT, () => {
-  console.log(`app is listening on port ${PORT}`);
-});
+createTables()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`app is listening on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Error creating tables:", error);
+  });
