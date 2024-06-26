@@ -14,14 +14,48 @@ export const signup = catchAsync(async (req, res, next) => {
 });
 
 export const login = catchAsync(async (req, res, next) => {
-  const token = await userService.login(req.body);
-  res.cookie("jwt", token, { httpOnly: true, secure: false });
-
-  res.status(200).json({
-    status: "success",
-    message: "logged in successfully",
-  });
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(new AppError(info.message), 401);
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.status(200).json({ status: "success", data: { user } });
+    });
+  })(req, res, next);
 });
+
+export const googleLogin = (req, res, next) => {
+  passport.authenticate("google", { scope: ["profile", "email"] })(
+    req,
+    res,
+    next
+  );
+};
+
+export const googleCallback = (req, res, next) => {
+  passport.authenticate("google", (err, user) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(new AppError("Authentication failed", 401));
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res
+        .status(200)
+        .json({ message: "Login successful", data: { user } });
+    });
+  })(req, res, next);
+};
 
 export const logout = catchAsync(async (req, res, next) => {
   req.logout((err) => {
@@ -38,21 +72,9 @@ export const logout = catchAsync(async (req, res, next) => {
 
 // protected routes
 export const protectedRoute = (req, res, next) => {
-  passport.authenticate("jwt", { session: false }, (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-    if (user) {
-      req.user = user;
-      return next();
-    }
-
-    // If JWT authentication fails, check for Google OAuth session
-    if (req.isAuthenticated()) {
-      return next();
-    }
-
-    // If neither authentication method works, respond with unauthorized status
-    return next(new AppError('please login to get access', 401))
-  })(req, res, next);
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    next(new AppError("please login to get access", 401));
+  }
 };

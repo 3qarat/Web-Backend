@@ -1,7 +1,6 @@
 import AppError from "../../../utils/appError.js";
 import pool from "../../database/index.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 const hashPassword = async (plainPassword) => {
   const salt = await bcrypt.genSalt();
@@ -17,13 +16,12 @@ export const signup = async ({
   username,
   email,
   password,
-  role,
   profile_picture = null,
   mobile_num,
 }) => {
   if (!username || !email || !password || !mobile_num) {
     throw new AppError(
-      "please provide all required fields (username, email, password and role, mobile_num)",
+      "please provide all required fields (username, email, password and mobile_num)",
       400
     );
   }
@@ -60,22 +58,3 @@ export const signup = async ({
   }
 };
 
-export const login = async ({ username, password }) => {
-  if (!username || !password) {
-    throw new AppError("provide your username and password", 400);
-  }
-  let sql = "select id, password from user where username = ?";
-  const [rows] = await pool.query(sql, [username]);
-
-  if (
-    rows.length === 0 ||
-    !(await verifyPassword(password, rows[0].password))
-  ) {
-    throw new AppError("incorrect email or password");
-  }
-
-  const token = jwt.sign({ id: rows[0].id }, "jwt-secret-string", {
-    expiresIn: "1h",
-  });
-  return token;
-};
