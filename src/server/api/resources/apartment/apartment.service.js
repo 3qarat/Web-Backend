@@ -104,7 +104,7 @@ export const getAllApartmentsBasedOnFilters = async ({
   maxRate,
 }) => {
   let sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos
+    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos, view_count
     from apartment as a
     left join apartment_Photos as p
     on a.id = p.apartment_id
@@ -180,7 +180,7 @@ export const getAllUserApartments = async (user_id) => {
   let apartments = {};
 
   const sql = `
-      select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities,a.education, a.health, a.transportation , floor, vr_link a.status, a.rate, a.user_id, p.photos
+      select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities,a.education, a.health, a.transportation , floor, vr_link a.status, a.rate, a.user_id, p.photos, view_count
       from apartment as a
       left join apartment_Photos as p
       on a.id = p.apartment_id
@@ -208,7 +208,7 @@ export const getAllUserApartments = async (user_id) => {
 export const getApartmentById = async (apartment_id) => {
   let apartment = {};
   const sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos
+    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos, view_count
     from apartment as a
     left join apartment_Photos as p
     on a.id = p.apartment_id
