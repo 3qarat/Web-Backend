@@ -136,8 +136,6 @@ async function createTables() {
     console.log("Password Reset Token table created successfully");
   } catch (error) {
     console.error("Error creating tables:", error);
-  } finally {
-    await pool.end(); // Close the connection pool after execution (optional)
   }
 }
 

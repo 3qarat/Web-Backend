@@ -52,3 +52,7 @@ createTables()
   .catch((err) => {
     console.error("Error creating tables:", error);
   });
+
+  // app.listen(PORT, () => {
+  //   console.log(`app is listening on port ${PORT}`);
+  // });
