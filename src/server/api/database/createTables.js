@@ -136,7 +136,7 @@ async function createTables() {
     console.log("Password Reset Token table created successfully");
   } catch (error) {
     console.error("Error creating tables:", error);
-  }
+  } 
 }
 
 export default createTables;
