@@ -20,7 +20,6 @@ export default (err, req, res, next) => {
   if (err.sqlState == 22007) err = handleInvalidDate(err);
 
   if (config.NODE_ENV == "development" || config.NODE_ENV == "test") {
-    console.error(err);
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
