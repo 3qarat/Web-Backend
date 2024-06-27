@@ -216,33 +216,40 @@ export const getApartmentById = async (apartment_id) => {
   `;
 
   const connection = await pool.getConnection();
-  connection.beginTransaction();
-  await connection.query(
-    "update apartment set view_count = view_count +1 where id = ?",
-    [apartment_id]
-  );
-  const [rows] = await connection.query(sql, [apartment_id]);
-  connection.commit();
+  try {
+    connection.beginTransaction();
+    await connection.query(
+      "update apartment set view_count = view_count +1 where id = ?",
+      [apartment_id]
+    );
+    const [rows] = await connection.query(sql, [apartment_id]);
+    connection.commit();
 
-  if (rows.length === 0) {
-    throw new AppError(`apartment not found with Id ${apartment_id}`, 400);
+    if (rows.length === 0) {
+      throw new AppError(`apartment not found with Id ${apartment_id}`, 400);
+    }
+
+    rows.forEach((row) => {
+      if (!apartment[row.id]) {
+        apartment[row.id] = {
+          ...row,
+          photos: [],
+        };
+      }
+
+      if (row.photos) {
+        apartment[row.id].photos.push(row.photos);
+      }
+    });
+
+    const apartmentArr = Object.values(apartment);
+    return apartmentArr;
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
   }
-
-  rows.forEach((row) => {
-    if (!apartment[row.id]) {
-      apartment[row.id] = {
-        ...row,
-        photos: [],
-      };
-    }
-
-    if (row.photos) {
-      apartment[row.id].photos.push(row.photos);
-    }
-  });
-
-  const apartmentArr = Object.values(apartment);
-  return apartmentArr;
 };
 
 export const updateApartmentById = async (
