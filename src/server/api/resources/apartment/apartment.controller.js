@@ -87,3 +87,4 @@ export const deleteApartmentById = catchAsync(async (req, res, next) => {
     status: "success",
   });
 });
+

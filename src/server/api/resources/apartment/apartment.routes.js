@@ -4,7 +4,7 @@ import { protectedRoute } from "../user/user.controller.js";
 
 const router = new Router();
 
-router.use(protectedRoute)
+router.use(protectedRoute);
 router
   .route("/")
   .post(apartmentController.createApartment)

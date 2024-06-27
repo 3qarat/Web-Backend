@@ -22,7 +22,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 60 * 60 * 1000, // 1 h
+      maxAge: 1000 * 60 * 60 * 24, // 1 h
       secure: false, // Set to true if using HTTPS
       httpOnly: true,
     },
@@ -43,16 +43,18 @@ app.use(globalErrorHandler);
 //start server
 
 const PORT = config.PORT;
-createTables()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`app is listening on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Error creating tables:", error);
+if (config.NODE_ENV == "development") {
+  app.listen(PORT, () => {
+    console.log(`app is listening on port ${PORT}`);
   });
-
-  // app.listen(PORT, () => {
-  //   console.log(`app is listening on port ${PORT}`);
-  // });
+} else if (config.NODE_ENV == "production") {
+  createTables()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`app is listening on port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("Error creating tables:", error);
+    });
+}

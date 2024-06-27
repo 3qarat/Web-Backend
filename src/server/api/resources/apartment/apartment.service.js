@@ -35,9 +35,6 @@ export const createApartment = async (
     !area ||
     !built_year ||
     !garages ||
-    !latitude ||
-    !longitude ||
-    !amenities ||
     !status ||
     !photos
   ) {
@@ -50,7 +47,7 @@ export const createApartment = async (
 
     sql = `
         insert into apartment(type, title, description, price, bedrooms, bathrooms, area, note, built_year, garages, latitude, longitude, amenities, education, health, transportation , floor, vr_link, status, user_id)
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? , ? ?)`;
+        values (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)`;
     const [rows] = await connection.query(sql, [
       type,
       title,
@@ -217,7 +214,15 @@ export const getApartmentById = async (apartment_id) => {
     on a.id = p.apartment_id
     where a.id = ?
   `;
-  const [rows] = await pool.query(sql, [apartment_id]);
+
+  const connection = await pool.getConnection();
+  connection.beginTransaction();
+  await connection.query(
+    "update apartment set view_count = view_count +1 where id = ?",
+    [apartment_id]
+  );
+  const [rows] = await connection.query(sql, [apartment_id]);
+  connection.commit();
 
   if (rows.length === 0) {
     throw new AppError(`apartment not found with Id ${apartment_id}`, 400);
