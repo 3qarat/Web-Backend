@@ -135,9 +135,22 @@ async function createTables() {
     `);
 
     console.log("Password Reset Token table created successfully");
+
+    // create user_favorites table
+    await pool.query(`
+      CREATE TABLE user_favorites (
+      user_id INT,
+      apartment_id INT,
+      PRIMARY KEY (user_id, apartment_id),
+      FOREIGN KEY (user_id) REFERENCES user(id),
+      FOREIGN KEY (apartment_id) REFERENCES apartment(id)
+  );
+  `);
+
+    console.log("user favorites table created successfully");
   } catch (error) {
     console.error("Error creating tables:", error);
-  } 
+  }
 }
 
 export default createTables;
