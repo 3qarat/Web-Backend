@@ -77,7 +77,7 @@ export const updatePassword = async (id, newPassword) => {
   }
 };
 
-export const generateResetToken = async (email) => {
+export const generateResetToken = async (email, req) => {
   let token;
   //detect sender device type
   const agent = useragent.parse(req.headers["user-agent"]);
@@ -92,7 +92,8 @@ export const generateResetToken = async (email) => {
   }
 
   //generate token
-  if (agent.isMobile) {
+  console.log(agent);
+  if (agent.family.startsWith('Mobile')) {
     token = generateFourDigitRandomNumber();
   } else {
     token = v4();

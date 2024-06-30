@@ -92,7 +92,7 @@ export const updatePassword = catchAsync(async (req, res, next) => {
 });
 
 export const generateResetToken = catchAsync(async (req, res, next) => {
-  await authService.generateResetToken(req.body.email);
+  await authService.generateResetToken(req.body.email, req);
 
   res.status(200).json({
     status: "success",
