@@ -104,8 +104,10 @@ export const getAllApartmentsBasedOnFilters = async ({
   maxRate,
 }) => {
   let sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos, view_count
+    select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos, view_count
     from apartment as a
+    inner join user as u
+    on u.id = a.user_id
     left join apartment_Photos as p
     on a.id = p.apartment_id
     where 1 = 1`;
@@ -159,15 +161,15 @@ export const getAllApartmentsBasedOnFilters = async ({
 
   const [rows] = await pool.query(sql, params);
   rows.forEach((row) => {
-    if (!apartments[row.id]) {
-      apartments[row.id] = {
+    if (!apartments[row.user_id]) {
+      apartments[row.user_id] = {
         ...row,
         photos: [],
       };
     }
 
     if (row.photos) {
-      apartments[row.id].photos.push(row.photos);
+      apartments[row.user_id].photos.push(row.photos);
     }
   });
 
