@@ -20,4 +20,8 @@ router.route("/forgot-password").post(userController.generateResetToken);
 router.route("/reset-password/:token").post(userController.resetPassword);
 router.route("/logout").get(userController.logout);
 
+//user services
+router.route("/partners").get(userController.getAllPartners);
+router.route("/partners/:id").get(userController.getAllPartnerApartments);
+
 export default router;
