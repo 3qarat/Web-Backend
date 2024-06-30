@@ -25,7 +25,7 @@ export default (err, req, res, next) => {
       message: err.message,
       error: err,
     });
-  } else if (config.NODE_ENV == "prod") {
+  } else if (config.NODE_ENV.startWith('prod')) {
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
