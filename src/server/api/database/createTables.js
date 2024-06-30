@@ -74,7 +74,8 @@ async function createTables() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS feedback (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        rating INT NOT NULL,
+        comment TEXT NOT NULL,
+        rating FLOAT NOT NULL,
         feedback_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         apartment_id INT NOT NULL,
         user_id INT NOT NULL,
@@ -138,7 +139,7 @@ async function createTables() {
 
     // create user_favorites table
     await pool.query(`
-      CREATE TABLE user_favorites (
+      CREATE TABLE IF NOT EXISTS user_favorites (
       user_id INT,
       apartment_id INT,
       PRIMARY KEY (user_id, apartment_id),
