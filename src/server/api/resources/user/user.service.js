@@ -1,131 +1,46 @@
-import AppError from "../../../utils/appError.js";
 import pool from "../../database/index.js";
-import bcrypt from "bcryptjs";
-import moment from "moment";
-import { v4 as uuidv4, v4 } from "uuid";
 
-const hashPassword = async (plainPassword) => {
-  const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash(plainPassword, salt);
-  return hashedPassword;
+export const getAllPartners = async () => {
+  const sql = `
+        select u.id, u.username, u.profile_picture, count(a.id) as apartments
+        from user as u
+        inner join apartment as a
+        on u.id = a.user_id
+        group by u.id, u.username, u.profile_picture
+    `;
+
+  const [rows] = await pool.query(sql);
+
+  return rows;
 };
 
-export const verifyPassword = async (plainPassword, hashedPassword) => {
-  return await bcrypt.compare(plainPassword, hashedPassword);
-};
+export const getAllPartnerApartments = async (user_id) => {
+  let apartments = {};
 
-export const signup = async ({
-  username,
-  email,
-  password,
-  profile_picture = null,
-  mobile_num,
-}) => {
-  if (!username || !email || !password || !mobile_num) {
-    throw new AppError(
-      "please provide all required fields (username, email, password and mobile_num)",
-      400
-    );
-  }
+  const sql = `
+      select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities,a.education, a.health, a.transportation , floor, vr_link, a.status, a.rate, p.photos, view_count
+      from apartment as a
+      inner join user as u
+      on a.user_id = u.id
+      left join apartment_Photos as p
+      on a.id = p.apartment_id
+      where a.user_id = ?
+    `;
+  const [rows] = await pool.query(sql, [user_id]);
 
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
+  rows.forEach((row) => {
+    if (!apartments[row.apartment_id]) {
+      apartments[row.apartment_id] = {
+        ...row,
+        photos: [],
+      };
+    }
 
-    let sql = `insert into user(username, email, password ,profile_picture) values (?, ?, ?, ?)`;
-    const [result] = await connection.query(sql, [
-      username,
-      email,
-      await hashPassword(password),
-      profile_picture,
-    ]);
+    if (row.photos) {
+      apartments[row.apartment_id ].photos.push(row.photos);
+    }
+  });
 
-    const contactPromises = mobile_num.map((num) =>
-      connection.query(
-        "insert into contact(user_id, mobile_num) values (?, ?)",
-        [result.insertId, num]
-      )
-    );
-
-    await Promise.all(contactPromises);
-
-    await connection.commit();
-
-    return result.insertId;
-  } catch (err) {
-    await connection.rollback();
-    throw err;
-  } finally {
-    connection.release();
-  }
-};
-
-export const updatePassword = async (id, newPassword) => {
-  const password = await hashPassword(newPassword);
-  const sql = "update user set password = ? where id = ?";
-  const [result] = await pool.query(sql, [password, id]);
-
-  if (result.affectedRows == 1) {
-    return "password updated successfully";
-  } else {
-    return "failed to update password";
-  }
-};
-
-export const generateResetToken = async (email) => {
-  //get user from db
-  const [rows] = await pool.query("select id from user where email = ?", [
-    email,
-  ]);
-  const user = rows[0];
-  if (!user) {
-    throw new AppError("user not found", 400);
-  }
-
-  //generate token
-  const token = v4();
-  const expiresAt = moment().add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
-
-  //store token in db
-  await pool.query(
-    "insert into password_reset_token(user_id, token, expires_at) values(?,?,?)",
-    [user.id, token, expiresAt]
-  );
-
-  //send via email
-};
-
-export const resetPassword = async (token, newPassword) => {
-  // get token from db
-  const [rows] = await pool.query(
-    "select * from password_reset_token where token = ?",
-    [token]
-  );
-  const resetToken = rows[0];
-  console.log(token);
-  if (!resetToken) {
-    throw new AppError("Token not found or expired", 404)
-  }
-
-  // check expiration date
-  const now = moment();
-  const expiresAt = moment(resetToken.expires_at);
-  if (now.isAfter(expiresAt)) {
-    await pool.query("delete from password_reset_token where id = ?", [
-      resetToken.id,
-    ]);
-    throw new AppError("Token expired", 400);
-  }
-
-  //update password
-  const password = await hashPassword(newPassword);
-  await pool.query("update user set password = ? where id = ?", [
-    password,
-    resetToken.user_id,
-  ]);
-
-  //delete token from db
-  await pool.query("delete from password_reset_token where id = ?", [
-    resetToken.id,
-  ]);
+  const apartmentsArr = Object.values(apartments);
+  return apartmentsArr;
 };

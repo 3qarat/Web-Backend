@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import pool from "../../database/index.js";
 import config from "../../../config/config.js";
-import { verifyPassword } from "./user.service.js";
+import { verifyPassword } from "./auth.service.js";
 
 //local strategy config
 passport.use(

@@ -175,36 +175,6 @@ export const getAllApartmentsBasedOnFilters = async ({
   return apartmentsArr;
 };
 
-//not used yet
-export const getAllUserApartments = async (user_id) => {
-  let apartments = {};
-
-  const sql = `
-      select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities,a.education, a.health, a.transportation , floor, vr_link a.status, a.rate, a.user_id, p.photos, view_count
-      from apartment as a
-      left join apartment_Photos as p
-      on a.id = p.apartment_id
-      where a.user_id = ?
-    `;
-  const [rows] = await pool.query(sql, [user_id]);
-
-  rows.forEach((row) => {
-    if (!apartments[row.id]) {
-      apartments[row.id] = {
-        ...row,
-        photos: [],
-      };
-    }
-
-    if (row.photos) {
-      apartments[row.id].photos.push(row.photos);
-    }
-  });
-
-  const apartmentsArr = Object.values(apartments);
-  return apartmentsArr;
-};
-
 export const getApartmentById = async (apartment_id) => {
   let apartment = {};
   const sql = `
