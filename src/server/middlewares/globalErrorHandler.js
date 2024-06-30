@@ -1,5 +1,6 @@
 import config from "../config/config.js";
 import AppError from "../utils/appError.js";
+
 const handleDuplicateFieldsDB = (err) => {
   const regex = /(?:\.)(\w+)/; //from chatgpt
   const match = err.message.match(regex)[1];
@@ -13,19 +14,20 @@ const handleInvalidDate = (err) => {
 };
 
 export default (err, req, res, next) => {
+  console.log(config.NODE_ENV);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
   if (err.sqlState == 23000) err = handleDuplicateFieldsDB(err);
   if (err.sqlState == 22007) err = handleInvalidDate(err);
 
-  if (config.NODE_ENV == "development" || config.NODE_ENV == "test") {
+  if (config.NODE_ENV === "development" || config.NODE_ENV === "test") {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
       error: err,
     });
-  } else if (config.NODE_ENV.startWith('prod')) {
+  } else if (config.NODE_ENV.startsWith('prod')) {
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
