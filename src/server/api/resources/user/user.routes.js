@@ -17,6 +17,7 @@ router
   .route("/updatePassword")
   .post(userController.protectedRoute, userController.updatePassword);
 router.route("/forgot-password").post(userController.generateResetToken);
+router.route("/verify-token").post(userController.verifyToken);
 router.route("/reset-password/:token").post(userController.resetPassword);
 router.route("/logout").get(userController.logout);
 

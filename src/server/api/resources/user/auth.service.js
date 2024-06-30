@@ -3,7 +3,11 @@ import pool from "../../database/index.js";
 import bcrypt from "bcryptjs";
 import moment from "moment";
 import { v4 as uuidv4, v4 } from "uuid";
+import useragent from "useragent";
 
+const generateFourDigitRandomNumber = () => {
+  return Math.floor(1000 + Math.random() * 9000);
+};
 
 const hashPassword = async (plainPassword) => {
   const salt = await bcrypt.genSalt();
@@ -74,6 +78,10 @@ export const updatePassword = async (id, newPassword) => {
 };
 
 export const generateResetToken = async (email) => {
+  let token;
+  //detect sender device type
+  const agent = useragent.parse(req.headers["user-agent"]);
+
   //get user from db
   const [rows] = await pool.query("select id from user where email = ?", [
     email,
@@ -84,7 +92,12 @@ export const generateResetToken = async (email) => {
   }
 
   //generate token
-  const token = v4();
+  if (agent.isMobile) {
+    token = generateFourDigitRandomNumber();
+  } else {
+    token = v4();
+  }
+
   const expiresAt = moment().add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
 
   //store token in db
@@ -96,6 +109,28 @@ export const generateResetToken = async (email) => {
   //send via email
 };
 
+export const verifyToken = async (token) => {
+  // get token from db
+  const [rows] = await pool.query(
+    "select * from password_reset_token where token = ?",
+    [token]
+  );
+  const resetToken = rows[0];
+  if (!resetToken) {
+    throw new AppError("Token not found or expired", 404);
+  }
+
+  // check expiration date
+  const now = moment();
+  const expiresAt = moment(resetToken.expires_at);
+  if (now.isAfter(expiresAt)) {
+    await pool.query("delete from password_reset_token where id = ?", [
+      resetToken.id,
+    ]);
+    throw new AppError("Token expired", 400);
+  }
+};
+
 export const resetPassword = async (token, newPassword) => {
   // get token from db
   const [rows] = await pool.query(
@@ -103,9 +138,8 @@ export const resetPassword = async (token, newPassword) => {
     [token]
   );
   const resetToken = rows[0];
-  console.log(token);
   if (!resetToken) {
-    throw new AppError("Token not found or expired", 404)
+    throw new AppError("Token not found or expired", 404);
   }
 
   // check expiration date
@@ -130,4 +164,3 @@ export const resetPassword = async (token, newPassword) => {
     resetToken.id,
   ]);
 };
-

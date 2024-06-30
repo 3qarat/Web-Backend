@@ -100,8 +100,16 @@ export const generateResetToken = catchAsync(async (req, res, next) => {
   });
 });
 
+export const verifyToken = catchAsync(async (req, res, next) => {
+  await authService.verifyToken(req.body.token);
+
+  res.status(200).json({
+    status: "success",
+    message: "token is valid",
+  });
+});
+
 export const resetPassword = catchAsync(async (req, res, next) => {
-  console.log(req.params);
   await authService.resetPassword(req.params.token, req.body.password);
 
   res.status(200).json({
