@@ -52,6 +52,7 @@ CREATE TABLE transactions (
 
 CREATE TABLE feedback (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  comment TEXT NOT NULL,
   rating INT NOT NULL,
   feedback_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   apartment_id INT NOT NULL,
