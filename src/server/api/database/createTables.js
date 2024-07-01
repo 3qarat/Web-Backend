@@ -12,7 +12,6 @@ async function createTables() {
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255),
         registration_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        profile_picture VARCHAR(255) DEFAULT NULL,
         is_active TINYINT(1) NOT NULL DEFAULT 1
       )
     `);
