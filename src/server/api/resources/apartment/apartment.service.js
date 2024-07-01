@@ -161,15 +161,15 @@ export const getAllApartmentsBasedOnFilters = async ({
 
   const [rows] = await pool.query(sql, params);
   rows.forEach((row) => {
-    if (!apartments[row.user_id]) {
-      apartments[row.user_id] = {
+    if (!apartments[row.apartment_id]) {
+      apartments[row.apartment_id] = {
         ...row,
         photos: [],
       };
     }
 
     if (row.photos) {
-      apartments[row.user_id].photos.push(row.photos);
+      apartments[row.apartment_id].photos.push(row.photos);
     }
   });
 
