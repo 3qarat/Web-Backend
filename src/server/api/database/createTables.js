@@ -5,6 +5,9 @@ async function createTables() {
   try {
     // Create user table
     await pool.query(`
+        DROP TABLE IF EXISTS user;
+      `)
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS user (
         id INT PRIMARY KEY AUTO_INCREMENT,
         google_id VARCHAR(255) NULL,
