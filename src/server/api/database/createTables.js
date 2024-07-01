@@ -15,13 +15,13 @@ async function createTables() {
         is_active TINYINT(1) NOT NULL DEFAULT 1
       )
     `);
-    await pool.query(`
-        DROP TABLE IF EXISTS contact;
-      `)
-    await pool.query(`
-      ALTER TABLE user
-      add mobile_num VARCHAR(20) NOT NULL
-      `)
+    // await pool.query(`
+    //     DROP TABLE IF EXISTS contact;
+    //   `)
+    // await pool.query(`
+    //   ALTER TABLE user
+    //   add mobile_num VARCHAR(20) NOT NULL
+    //   `)
 
     console.log("User table created successfully");
 
