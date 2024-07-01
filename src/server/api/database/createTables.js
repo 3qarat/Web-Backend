@@ -12,6 +12,7 @@ async function createTables() {
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255),
         registration_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        mobile_num VARCHAR(20) NOT NULL,
         profile_picture VARCHAR(255) DEFAULT NULL,
         is_active TINYINT(1) NOT NULL DEFAULT 1
       )
@@ -98,17 +99,6 @@ async function createTables() {
 
     console.log("Apartment Photos table created successfully");
 
-    // Create contact table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS contact (
-        user_id INT NOT NULL,
-        mobile_num VARCHAR(20) NOT NULL UNIQUE,
-        PRIMARY KEY (user_id, mobile_num),
-        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-      )
-    `);
-
-    console.log("Contact table created successfully");
 
     // Create rented_sold_apartments table
     await pool.query(`

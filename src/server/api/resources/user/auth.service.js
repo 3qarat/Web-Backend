@@ -35,36 +35,16 @@ export const signup = async (
     ? `uploads/${uploaded_image.filename}`
     : null;
 
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
-
-    let sql = `insert into user(username, email, password ,profile_picture) values (?, ?, ?, ?)`;
-    const [result] = await connection.query(sql, [
+    let sql = `insert into user(username, email, password, mobile_num ,profile_picture) values (?, ?, ?, ?, ?)`;
+    const [result] = await pool.query(sql, [
       username,
       email,
       await hashPassword(password),
+      mobile_num,
       profile_picture,
     ]);
 
-    const contactPromises = Array(mobile_num).map((num) =>
-      connection.query(
-        "insert into contact(user_id, mobile_num) values (?, ?)",
-        [result.insertId, num]
-      )
-    );
-
-    await Promise.all(contactPromises);
-
-    await connection.commit();
-
     return result.insertId;
-  } catch (err) {
-    await connection.rollback();
-    throw err;
-  } finally {
-    connection.release();
-  }
 };
 
 export const updatePassword = async (id, newPassword) => {
