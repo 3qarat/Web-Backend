@@ -5,7 +5,7 @@ import AppError from "../../../utils/appError.js";
 import passport from "passport";
 
 export const signup = catchAsync(async (req, res, next) => {
-  const user_id = await authService.signup(req.body);
+  const user_id = await authService.signup(req.body, req.file);
   res.status(201).json({
     status: "success",
     data: {

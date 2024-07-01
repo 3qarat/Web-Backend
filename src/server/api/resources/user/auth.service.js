@@ -19,19 +19,21 @@ export const verifyPassword = async (plainPassword, hashedPassword) => {
   return await bcrypt.compare(plainPassword, hashedPassword);
 };
 
-export const signup = async ({
-  username,
-  email,
-  password,
-  profile_picture = null,
-  mobile_num,
-}) => {
+export const signup = async (
+  { username, email, password, mobile_num },
+  uploaded_image
+) => {
   if (!username || !email || !password || !mobile_num) {
     throw new AppError(
       "please provide all required fields (username, email, password and mobile_num)",
       400
     );
   }
+
+  // Extract uploaded image path
+  const profile_picture = uploaded_image
+    ? `uploads/${uploaded_image.filename}`
+    : null;
 
   const connection = await pool.getConnection();
   try {
@@ -45,7 +47,7 @@ export const signup = async ({
       profile_picture,
     ]);
 
-    const contactPromises = mobile_num.map((num) =>
+    const contactPromises = Array(mobile_num).map((num) =>
       connection.query(
         "insert into contact(user_id, mobile_num) values (?, ?)",
         [result.insertId, num]
@@ -93,7 +95,7 @@ export const generateResetToken = async (email, req) => {
 
   //generate token
   console.log(agent);
-  if (agent.family.startsWith('Mobile')) {
+  if (agent.family.startsWith("Mobile")) {
     token = generateFourDigitRandomNumber();
   } else {
     token = v4();
