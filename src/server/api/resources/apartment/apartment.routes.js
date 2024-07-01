@@ -4,16 +4,15 @@ import { protectedRoute } from "../user/user.controller.js";
 
 const router = new Router();
 
-router.use(protectedRoute);
 router
   .route("/")
-  .post(apartmentController.createApartment)
+  .post(protectedRoute, apartmentController.createApartment)
   .get(apartmentController.getAllApartmentsBasedOnFilters);
 router
   .route("/:id")
   .get(apartmentController.getApartmentById)
-  .put(apartmentController.updateApartmentById)
-  .patch(apartmentController.dynamicUpdateApartmentById)
-  .delete(apartmentController.deleteApartmentById);
+  .put(protectedRoute, apartmentController.updateApartmentById)
+  .patch(protectedRoute, apartmentController.dynamicUpdateApartmentById)
+  .delete(protectedRoute, apartmentController.deleteApartmentById);
 
 export default router;
