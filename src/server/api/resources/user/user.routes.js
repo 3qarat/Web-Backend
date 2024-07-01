@@ -24,7 +24,6 @@ router.route("/reset-password/:token").post(userController.resetPassword);
 router.route("/logout").get(userController.logout);
 
 //user services
-router.use(protectedRoute);
 router.route("/partners").get(userController.getAllPartners);
 router.route("/partners/:id").get(userController.getAllPartnerApartments);
 router.route("/").patch(userController.updateUserById);
