@@ -140,3 +140,12 @@ export const getAllPartnerApartments = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const updateUserById = catchAsync(async (req, res, next) => {
+  await userService.updateUserById(req.body, req.user.id);
+
+  res.status("200").json({
+    status: "success",
+    message: "user data updated successfully",
+  });
+});

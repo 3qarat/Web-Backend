@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as userController from "./user.controller.js";
+import { protectedRoute } from "./user.controller.js";
 
 const router = new Router();
 
@@ -22,7 +23,8 @@ router.route("/reset-password/:token").post(userController.resetPassword);
 router.route("/logout").get(userController.logout);
 
 //user services
+router.use(protectedRoute);
 router.route("/partners").get(userController.getAllPartners);
 router.route("/partners/:id").get(userController.getAllPartnerApartments);
-
+router.route("/").patch(userController.updateUserById);
 export default router;

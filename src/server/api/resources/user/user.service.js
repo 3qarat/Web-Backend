@@ -37,10 +37,45 @@ export const getAllPartnerApartments = async (user_id) => {
     }
 
     if (row.photos) {
-      apartments[row.apartment_id ].photos.push(row.photos);
+      apartments[row.apartment_id].photos.push(row.photos);
     }
   });
 
   const apartmentsArr = Object.values(apartments);
   return apartmentsArr;
+};
+
+export const updateUserById = async (
+  { username, email, profile_picture },
+  user_id
+) => {
+  let updates = [];
+  let params = [];
+
+  if (username) {
+    updates.push("username = ?");
+    params.push(username);
+  }
+  if (email) {
+    updates.push("email = ?");
+    params.push(email);
+  }
+  if (profile_picture) {
+    updates.push("profile_picture = ?");
+    params.push(profile_picture);
+  }
+
+  if (updates.length === 0) {
+    throw new AppError("no valid fields provided for update.");
+  }
+
+  params.push(user_id)
+
+  const sql = `update user set ${updates.join(', ')} where id = ?`;
+  const [result] = await pool.sql(sql, params)
+
+  if (result.affectedRows === 0) {
+    throw new AppError(`no apartment found with ID ${apartment_id}`, 400);
+  }
+
 };
