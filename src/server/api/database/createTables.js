@@ -11,6 +11,8 @@ async function createTables() {
         username VARCHAR(50) NOT NULL UNIQUE,
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255),
+        profile_picture VARCHAR(255),
+        mobile_num VARCHAR(20) NOT NULL,
         registration_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         is_active TINYINT(1) NOT NULL DEFAULT 1
       )

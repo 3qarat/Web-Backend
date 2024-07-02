@@ -11,7 +11,7 @@ router
 router
   .route("/:id")
   .get(apartmentController.getApartmentById)
-  .put(protectedRoute, apartmentController.updateApartmentById)
+  //.put(protectedRoute, apartmentController.updateApartmentById)
   .patch(protectedRoute, apartmentController.dynamicUpdateApartmentById)
   .delete(protectedRoute, apartmentController.deleteApartmentById);
 

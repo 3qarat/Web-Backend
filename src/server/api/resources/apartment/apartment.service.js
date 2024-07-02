@@ -35,6 +35,8 @@ export const createApartment = async (
     !area ||
     !built_year ||
     !garages ||
+    !latitude ||
+    !longitude ||
     !status ||
     !photos
   ) {
@@ -104,7 +106,7 @@ export const getAllApartmentsBasedOnFilters = async ({
   maxRate,
 }) => {
   let sql = `
-    select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos, view_count
+    select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, p.photos, view_count, created_at
     from apartment as a
     inner join user as u
     on u.id = a.user_id
@@ -180,8 +182,10 @@ export const getAllApartmentsBasedOnFilters = async ({
 export const getApartmentById = async (apartment_id) => {
   let apartment = {};
   const sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos, view_count
+    select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, p.photos, view_count, created_at
     from apartment as a
+    inner join user as u
+    on u.id = a.user_id
     left join apartment_Photos as p
     on a.id = p.apartment_id
     where a.id = ?
@@ -190,10 +194,11 @@ export const getApartmentById = async (apartment_id) => {
   const connection = await pool.getConnection();
   try {
     connection.beginTransaction();
-    await connection.query(
+    const [result] = await connection.query(
       "update apartment set view_count = view_count +1 where id = ?",
       [apartment_id]
     );
+
     const [rows] = await connection.query(sql, [apartment_id]);
     connection.commit();
 
@@ -202,15 +207,15 @@ export const getApartmentById = async (apartment_id) => {
     }
 
     rows.forEach((row) => {
-      if (!apartment[row.id]) {
-        apartment[row.id] = {
+      if (!apartment[row.apartment_id]) {
+        apartment[row.apartment_id] = {
           ...row,
           photos: [],
         };
       }
 
       if (row.photos) {
-        apartment[row.id].photos.push(row.photos);
+        apartment[row.apartment_id].photos.push(row.photos);
       }
     });
 
@@ -358,6 +363,8 @@ export const deleteApartmentById = async (apartment_id) => {
     where id = ?
   `;
   await pool.query(sql, [apartment_id]);
+
+  return apartment_id
 };
 
 export const dynamicUpdateApartmentById = async (
@@ -438,11 +445,7 @@ export const dynamicUpdateApartmentById = async (
   }
   if (amenities) {
     updates.push("amenities = ?");
-    params.push(amenities);
-  }
-  if (nearby) {
-    updates.push("nearby = ?");
-    params.push(nearby);
+    params.push(JSON.stringify(amenities));
   }
   if (floor) {
     updates.push("floor = ?");
@@ -486,6 +489,5 @@ export const dynamicUpdateApartmentById = async (
   if (result.affectedRows === 0) {
     throw new AppError(`no apartment found with ID ${apartment_id}`, 400);
   }
-
-  return result.affectedRows;
+  return apartment_id;
 };
