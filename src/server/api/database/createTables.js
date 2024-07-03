@@ -59,6 +59,21 @@ async function createTables() {
       )
     `);
 
+    await pool.query(`
+        delete from apartment
+        where 1 =1
+      `);
+
+    await pool.query(`
+      ALTER TABLE apartment
+      MODIFY COLUMN type ENUM('شقة مفروشة', 'شقق', 'شاليهات', 'فيلات') NOT NULL;
+      `);
+
+    await pool.query(`
+      ALTER TABLE apartment
+      MODIFY COLUMN status ENUM('للبيع', 'للإيجار', 'تم البيع') NOT NULL;
+      `);
+
     console.log("Apartment table created successfully");
 
     // Create transactions table
@@ -105,7 +120,6 @@ async function createTables() {
     `);
 
     console.log("Apartment Photos table created successfully");
-
 
     // Create rented_sold_apartments table
     await pool.query(`
