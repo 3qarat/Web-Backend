@@ -160,6 +160,42 @@ async function createTables() {
   `);
 
     console.log("user favorites table created successfully");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS places (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      type ENUM( 'قطعة أرض','جراج', 'محل') NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      price DECIMAL(10, 2) NOT NULL,
+      area DECIMAL(10, 2) NOT NULL,
+      note TEXT,
+      latitude DECIMAL(9, 6),
+      longitude DECIMAL(9, 6),
+      address VARCHAR(255) NOT NULL,
+      floor_num INT,
+      vr_link VARCHAR(255),
+      status ENUM('تم البيع', 'للإيجار', 'للبيع') NOT NULL,
+      rate FLOAT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      user_id INT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+      );
+    `);
+
+    console.log("places table is created successfully");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS place_photos (
+      place_id INT NOT NULL,
+      photo VARCHAR(255) NOT NULL,
+      PRIMARY KEY (place_id, photo),
+      FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE
+      );
+      `);
+
+    console.log("place_photos table is created successfully");
   } catch (error) {
     console.error("Error creating tables:", error);
   }
