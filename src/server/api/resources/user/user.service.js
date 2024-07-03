@@ -1,4 +1,5 @@
 import pool from "../../database/index.js";
+import AppError from "../../../utils/appError.js";
 
 export const getAllPartners = async () => {
   const sql = `
@@ -45,8 +46,20 @@ export const getAllPartnerApartments = async (user_id) => {
   return apartmentsArr;
 };
 
-export const updateUserById = async (
-  { username, email, profile_picture },
+export const getAllUsers = async () => {
+  const sql = `
+    select id, google_id, username, email, registration_date, profile_picture, mobile_num
+    from user
+    where is_active = 1;
+    `;
+
+  const [rows] = await pool.query(sql);
+
+  return rows;
+};
+
+export const updateMe = async (
+  { username, email, profile_picture, mobile_num },
   user_id
 ) => {
   let updates = [];
@@ -64,18 +77,31 @@ export const updateUserById = async (
     updates.push("profile_picture = ?");
     params.push(profile_picture);
   }
+  if (mobile_num) {
+    updates.push("mobile_num = ?");
+    params.push(mobile_num);
+  }
 
   if (updates.length === 0) {
     throw new AppError("no valid fields provided for update.");
   }
 
-  params.push(user_id)
+  params.push(user_id);
 
-  const sql = `update user set ${updates.join(', ')} where id = ?`;
-  const [result] = await pool.sql(sql, params)
+  const sql = `update user set ${updates.join(", ")} where id = ?`;
+  const [result] = await pool.query(sql, params);
 
   if (result.affectedRows === 0) {
     throw new AppError(`no apartment found with ID ${apartment_id}`, 400);
   }
+};
 
+export const deleteMe = async (userId) => {
+  const sql = `
+    update user
+    set
+      is_active = 0
+    where id = ?;
+  `;
+  await pool.query(sql, userId);
 };

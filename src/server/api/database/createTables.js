@@ -8,7 +8,7 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS user (
         id INT PRIMARY KEY AUTO_INCREMENT,
         google_id VARCHAR(255) NULL,
-        username VARCHAR(50) NOT NULL UNIQUE,
+        username VARCHAR(50) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255),
         profile_picture VARCHAR(255),

@@ -3,7 +3,9 @@ import * as authService from "./auth.service.js";
 import * as userService from "./user.service.js";
 import AppError from "../../../utils/appError.js";
 import passport from "passport";
+import pool from "../../database/index.js";
 
+// Auth
 export const signup = catchAsync(async (req, res, next) => {
   const user_id = await authService.signup(req.body, req.file);
   res.status(201).json({
@@ -79,6 +81,13 @@ export const protectedRoute = (req, res, next) => {
   }
 };
 
+export const isAdmin = (req, res, next) => {
+  if (req.isAuthenticated() && req.user.email == "hashem@email") {
+    next();
+  } else {
+    next(new AppError("you are not authorized to perform this action, only for admins", 401));
+  }
+};
 export const updatePassword = catchAsync(async (req, res, next) => {
   const message = await authService.updatePassword(
     req.user.id,
@@ -118,6 +127,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   });
 });
 
+//user service
 export const getAllPartners = catchAsync(async (req, res, next) => {
   const partners = await userService.getAllPartners();
 
@@ -141,11 +151,32 @@ export const getAllPartnerApartments = catchAsync(async (req, res, next) => {
   });
 });
 
-export const updateUserById = catchAsync(async (req, res, next) => {
-  await userService.updateUserById(req.body, req.user.id);
+export const getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await userService.getAllUsers();
 
-  res.status("200").json({
+  res.status(200).json({
+    status: "success",
+    data: {
+      users,
+    },
+  });
+});
+
+export const updateMe = catchAsync(async (req, res, next) => {
+  console.log(req.user);
+  await userService.updateMe(req.body, req.user.id);
+
+  res.status(200).json({
     status: "success",
     message: "user data updated successfully",
+  });
+});
+
+export const deleteMe = catchAsync(async (req, res, next) => {
+  await userService.deleteMe(req.user.id);
+
+  res.status(200).json({
+    status: "success",
+    message: "user deleted successfully",
   });
 });

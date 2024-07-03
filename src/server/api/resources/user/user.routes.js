@@ -14,7 +14,9 @@ router.route("/auth/google/callback").get(userController.googleCallback);
 router.route("/login").post(userController.login);
 
 // general auth routes
-router.route("/signup").post(upload.single("profile_picture"), userController.signup);
+router
+  .route("/signup")
+  .post(upload.single("profile_picture"), userController.signup);
 router
   .route("/updatePassword")
   .post(userController.protectedRoute, userController.updatePassword);
@@ -26,5 +28,12 @@ router.route("/logout").get(userController.logout);
 //user services
 router.route("/partners").get(userController.getAllPartners);
 router.route("/partners/:id").get(userController.getAllPartnerApartments);
-router.route("/").patch(userController.updateUserById);
+
+router.use(protectedRoute);
+router
+  .route("/")
+  .patch(userController.updateMe)
+  .delete(userController.deleteMe)
+  .get(userController.isAdmin, userController.getAllUsers);
+
 export default router;
