@@ -1,4 +1,3 @@
-import e from "express";
 import catchAsync from "../../../utils/catchAsync.js";
 import * as apartmentService from "./apartment.service.js";
 

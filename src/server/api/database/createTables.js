@@ -177,9 +177,10 @@ async function createTables() {
       vr_link VARCHAR(255),
       status ENUM('تم البيع', 'للإيجار', 'للبيع') NOT NULL,
       rate FLOAT,
+      view_count INT DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      user_id INT NOT NULL,
+      user_id INT  NOT NULL,
       FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
       );
     `);
@@ -196,6 +197,7 @@ async function createTables() {
       `);
 
     console.log("place_photos table is created successfully");
+
   } catch (error) {
     console.error("Error creating tables:", error);
   }

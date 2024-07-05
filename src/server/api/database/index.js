@@ -37,6 +37,7 @@ const initializePool = () => {
     config.NODE_ENV == "development" ? devConfig : prodConfig
   );
 
+
   if (config.NODE_ENV === "development") {
     pool.on("acquire", () => {
       console.log("Connection acquired");
