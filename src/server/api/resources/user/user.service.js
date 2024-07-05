@@ -58,6 +58,18 @@ export const getAllUsers = async () => {
   return rows;
 };
 
+export const getUserById = async (userId) => {
+  const sql = `
+    select id, google_id, username, email, registration_date, profile_picture, mobile_num
+    from user
+    where is_active = 1 and id  = ?
+  `;
+
+  const [rows] = await pool.query(sql, [userId]);
+
+  return rows[0];
+};
+
 export const updateMe = async (
   { username, email, profile_picture, mobile_num },
   user_id

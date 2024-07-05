@@ -29,11 +29,13 @@ router.route("/logout").get(userController.logout);
 router.route("/partners").get(userController.getAllPartners);
 router.route("/partners/:id").get(userController.getAllPartnerApartments);
 
-router.use(protectedRoute);
+
 router
   .route("/")
-  .patch(userController.updateMe)
-  .delete(userController.deleteMe)
-  .get(userController.isAdmin, userController.getAllUsers);
+  .patch(protectedRoute, userController.updateMe)
+  .delete(protectedRoute, userController.deleteMe)
+  .get(protectedRoute, userController.isAdmin, userController.getAllUsers);
+
+router.route("/:id").get(userController.getUserById);
 
 export default router;

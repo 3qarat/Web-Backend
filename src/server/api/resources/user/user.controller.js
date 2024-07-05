@@ -85,9 +85,15 @@ export const isAdmin = (req, res, next) => {
   if (req.isAuthenticated() && req.user.email == "hashem@email") {
     next();
   } else {
-    next(new AppError("you are not authorized to perform this action, only for admins", 401));
+    next(
+      new AppError(
+        "you are not authorized to perform this action, only for admins",
+        401
+      )
+    );
   }
 };
+
 export const updatePassword = catchAsync(async (req, res, next) => {
   const message = await authService.updatePassword(
     req.user.id,
@@ -158,6 +164,17 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       users,
+    },
+  });
+});
+
+export const getUserById = catchAsync(async (req, res, next) => {
+  const user = await userService.getUserById(req.params.id);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
     },
   });
 });
