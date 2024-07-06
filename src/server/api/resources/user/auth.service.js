@@ -31,20 +31,24 @@ export const signup = async (
   }
 
   // Extract uploaded image path
+  const domain =
+    config.NODE_ENV === "development"
+      ? "http://localhost:8181/"
+      : "https://web-backend-production-8f43.up.railway.app/";
   const profile_picture = uploaded_image
-    ? `uploads/${uploaded_image.filename}`
+    ? `${domain}/uploads/${uploaded_image.filename}`
     : null;
 
-    let sql = `insert into user(username, email, password, mobile_num ,profile_picture) values (?, ?, ?, ?, ?)`;
-    const [result] = await pool.query(sql, [
-      username,
-      email,
-      await hashPassword(password),
-      mobile_num,
-      profile_picture,
-    ]);
+  let sql = `insert into user(username, email, password, mobile_num ,profile_picture) values (?, ?, ?, ?, ?)`;
+  const [result] = await pool.query(sql, [
+    username,
+    email,
+    await hashPassword(password),
+    mobile_num,
+    profile_picture,
+  ]);
 
-    return result.insertId;
+  return result.insertId;
 };
 
 export const updatePassword = async (id, newPassword) => {

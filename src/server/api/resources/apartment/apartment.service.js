@@ -1,5 +1,6 @@
 import pool from "../../database/index.js";
 import AppError from "../../../utils/appError.js";
+import config from "../../../config/config.js";
 
 export const createApartment = async (
   {
@@ -42,7 +43,11 @@ export const createApartment = async (
   ) {
     throw new AppError("please provide all required fields", 400);
   }
-  const photosPaths = photos.map((photo) => `uploads/${photo.filename}`);
+  const domain =
+    config.NODE_ENV === "development"
+      ? "http://localhost:8181/"
+      : "https://web-backend-production-8f43.up.railway.app/";
+  const photosPaths = photos.map((photo) => `${domain}/uploads/${photo.filename}`);
   const connection = await pool.getConnection();
   let sql;
   try {
