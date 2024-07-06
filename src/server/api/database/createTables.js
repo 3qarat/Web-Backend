@@ -159,6 +159,10 @@ async function createTables() {
   );
   `);
 
+    // await pool.query(`
+    // ALTER TABLE user_favorites RENAME TO user_favorite_apartments;
+    // `);
+
     console.log("user favorites table created successfully");
 
     await pool.query(`
@@ -198,6 +202,17 @@ async function createTables() {
 
     console.log("place_photos table is created successfully");
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_favorites_places (
+      user_id INT,
+      place_id INT,
+      PRIMARY KEY (user_id, place_id),
+      FOREIGN KEY (user_id) REFERENCES user(id),
+      FOREIGN KEY (place_id) REFERENCES apartment(id)
+  );
+      `);
+
+    console.log("user_favorite_places is created successfully");
   } catch (error) {
     console.error("Error creating tables:", error);
   }
