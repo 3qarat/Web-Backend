@@ -4,6 +4,7 @@ import * as apartmentService from "./apartment.service.js";
 export const createApartment = catchAsync(async (req, res, next) => {
   const apartment_id = await apartmentService.createApartment(
     req.body,
+    req.files,
     req.user.id
   );
 

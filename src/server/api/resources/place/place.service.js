@@ -15,8 +15,8 @@ export const createPlace = async (
     floor_num,
     vr_link,
     status,
-    photos,
   },
+  photos,
   userId
 ) => {
   if (
@@ -27,14 +27,16 @@ export const createPlace = async (
     !latitude ||
     !longitude ||
     !floor_num ||
-    !status
+    !status ||
+    !photos ||
+    !address
   ) {
     throw new AppError(
       "please provide all require fields [type, title, price, area, latitude, longitude, floor_num, status]",
       400
     );
   }
-
+  const photosPaths = photos.map((photo) => `uploads/${photo.filename}`);
   const connection = await pool.getConnection();
   let sql;
 
@@ -60,13 +62,12 @@ export const createPlace = async (
       userId,
     ]);
 
-    console.log(rows);
     sql = `
         insert into place_photos (place_id, photo)
         values (?, ?)
     `;
 
-    const placePhotosPromises = photos.map((photo) =>
+    const placePhotosPromises = photosPaths.map((photo) =>
       connection.query(sql, [rows.insertId, photo])
     );
 
@@ -77,7 +78,7 @@ export const createPlace = async (
   } catch (err) {
     await connection.rollback();
   } finally {
-     connection.release();
+    connection.release();
   }
 };
 

@@ -22,8 +22,8 @@ export const createApartment = async (
     floor,
     vr_link,
     status,
-    photos,
   },
+  photos,
   user_id
 ) => {
   if (
@@ -42,6 +42,7 @@ export const createApartment = async (
   ) {
     throw new AppError("please provide all required fields", 400);
   }
+  const photosPaths = photos.map((photo) => `uploads/${photo.filename}`);
   const connection = await pool.getConnection();
   let sql;
   try {
@@ -77,7 +78,7 @@ export const createApartment = async (
         insert into apartment_Photos (apartment_id, photos)
         values (?, ?)
     `;
-    const apartmentPhotosPromises = photos.map((photo) =>
+    const apartmentPhotosPromises = photosPaths.map((photo) =>
       connection.query(sql, [rows.insertId, photo])
     );
     await Promise.all(apartmentPhotosPromises);
@@ -364,7 +365,7 @@ export const deleteApartmentById = async (apartment_id) => {
   `;
   await pool.query(sql, [apartment_id]);
 
-  return apartment_id
+  return apartment_id;
 };
 
 export const dynamicUpdateApartmentById = async (

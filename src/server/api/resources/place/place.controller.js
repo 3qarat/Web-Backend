@@ -2,8 +2,11 @@ import * as placeService from "./place.service.js";
 import catchAsync from "../../../utils/catchAsync.js";
 
 export const createPlace = catchAsync(async (req, res, next) => {
-  console.log(req.body, req.user.id);
-  const placeId = await placeService.createPlace(req.body, req.user.id);
+  const placeId = await placeService.createPlace(
+    req.body,
+    req.files,
+    req.user.id
+  );
 
   res.status(201).json({
     status: "success",

@@ -1,12 +1,17 @@
 import { Router } from "express";
 import * as apartmentController from "./apartment.controller.js";
 import { protectedRoute } from "../user/user.controller.js";
+import upload from "../../../config/multerConfig.js";
 
 const router = new Router();
 
 router
   .route("/")
-  .post(protectedRoute, apartmentController.createApartment)
+  .post(
+    protectedRoute,
+    upload.array("photos", 10),
+    apartmentController.createApartment
+  )
   .get(apartmentController.getAllApartmentsBasedOnFilters);
 router
   .route("/:id")
