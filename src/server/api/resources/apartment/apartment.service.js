@@ -47,7 +47,7 @@ export const createApartment = async (
     config.NODE_ENV === "development"
       ? "http://localhost:8181/"
       : "https://web-backend-production-8f43.up.railway.app/";
-  const photosPaths = photos.map((photo) => `${domain}/uploads/${photo.filename}`);
+  const photosPaths = photos.map((photo) => `${domain}uploads/${photo.filename}`);
   const connection = await pool.getConnection();
   let sql;
   try {

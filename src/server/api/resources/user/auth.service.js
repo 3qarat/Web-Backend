@@ -36,7 +36,7 @@ export const signup = async (
       ? "http://localhost:8181/"
       : "https://web-backend-production-8f43.up.railway.app/";
   const profile_picture = uploaded_image
-    ? `${domain}/uploads/${uploaded_image.filename}`
+    ? `${domain}uploads/${uploaded_image.filename}`
     : null;
 
   let sql = `insert into user(username, email, password, mobile_num ,profile_picture) values (?, ?, ?, ?, ?)`;
