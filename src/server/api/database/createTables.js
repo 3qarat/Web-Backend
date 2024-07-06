@@ -59,10 +59,6 @@ async function createTables() {
       )
     `);
 
-    await pool.query(`
-        delete from apartment
-        where 1 =1
-      `);
 
     await pool.query(`
       ALTER TABLE apartment
