@@ -1,6 +1,3 @@
-Here’s the complete README content formatted as a Markdown file:
-
-```markdown
 # AQARE Backend
 
 AQARE is a Node.js-based backend application designed for an apartment rental platform. This project is part of my graduation requirements and includes features for user management, apartment listings, and more.
@@ -13,7 +10,6 @@ AQARE is a Node.js-based backend application designed for an apartment rental pl
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Contributing](#contributing)
-
 ## Features
 
 - User authentication (local and Google)
@@ -39,7 +35,7 @@ AQARE is a Node.js-based backend application designed for an apartment rental pl
    ```bash
    git clone https://github.com/3qarat/Web-Backend.git
    cd Web-Backend/src/server
-   ```
+
 
 2. Install dependencies:
    ```bash
