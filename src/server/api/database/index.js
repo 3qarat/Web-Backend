@@ -33,23 +33,28 @@ const prodConfig = {
   keepAliveInitialDelay: 0,
 };
 const initializePool = () => {
-  pool = mysql.createPool(config.NODE_ENV == 'development' ? devConfig : prodConfig);
+  pool = mysql.createPool(
+    config.NODE_ENV == "development" ? devConfig : prodConfig
+  );
 
-  pool.on("acquire", () => {
-    console.log("Connection acquired");
-  });
 
-  pool.on("connection", () => {
-    console.log(`Connected to ${config.MYSQL_DATABASE}`);
-  });
+  if (config.NODE_ENV === "development") {
+    pool.on("acquire", () => {
+      console.log("Connection acquired");
+    });
 
-  pool.on("release", () => {
-    console.log("Connection released");
-  });
+    pool.on("connection", () => {
+      console.log(`Connected to ${config.MYSQL_DATABASE}`);
+    });
 
-  pool.on("enqueue", () => {
-    console.log("Waiting for available connection slot");
-  });
+    pool.on("release", () => {
+      console.log("Connection released");
+    });
+
+    pool.on("enqueue", () => {
+      console.log("Waiting for available connection slot");
+    });
+  }
 
   pool.on("error", handlePoolError);
 };

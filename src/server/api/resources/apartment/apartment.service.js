@@ -1,5 +1,6 @@
 import pool from "../../database/index.js";
 import AppError from "../../../utils/appError.js";
+import config from "../../../config/config.js";
 
 export const createApartment = async (
   {
@@ -22,8 +23,8 @@ export const createApartment = async (
     floor,
     vr_link,
     status,
-    photos,
   },
+  photos,
   user_id
 ) => {
   if (
@@ -35,11 +36,18 @@ export const createApartment = async (
     !area ||
     !built_year ||
     !garages ||
+    !latitude ||
+    !longitude ||
     !status ||
     !photos
   ) {
     throw new AppError("please provide all required fields", 400);
   }
+  const domain =
+    config.NODE_ENV === "development"
+      ? "http://localhost:8181/"
+      : "https://web-backend-production-8f43.up.railway.app/";
+  const photosPaths = photos.map((photo) => `${domain}uploads/${photo.filename}`);
   const connection = await pool.getConnection();
   let sql;
   try {
@@ -75,7 +83,7 @@ export const createApartment = async (
         insert into apartment_Photos (apartment_id, photos)
         values (?, ?)
     `;
-    const apartmentPhotosPromises = photos.map((photo) =>
+    const apartmentPhotosPromises = photosPaths.map((photo) =>
       connection.query(sql, [rows.insertId, photo])
     );
     await Promise.all(apartmentPhotosPromises);
@@ -104,8 +112,10 @@ export const getAllApartmentsBasedOnFilters = async ({
   maxRate,
 }) => {
   let sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos
+    select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, p.photos, view_count, created_at
     from apartment as a
+    inner join user as u
+    on u.id = a.user_id
     left join apartment_Photos as p
     on a.id = p.apartment_id
     where 1 = 1`;
@@ -159,45 +169,15 @@ export const getAllApartmentsBasedOnFilters = async ({
 
   const [rows] = await pool.query(sql, params);
   rows.forEach((row) => {
-    if (!apartments[row.id]) {
-      apartments[row.id] = {
+    if (!apartments[row.apartment_id]) {
+      apartments[row.apartment_id] = {
         ...row,
         photos: [],
       };
     }
 
     if (row.photos) {
-      apartments[row.id].photos.push(row.photos);
-    }
-  });
-
-  const apartmentsArr = Object.values(apartments);
-  return apartmentsArr;
-};
-
-//not used yet
-export const getAllUserApartments = async (user_id) => {
-  let apartments = {};
-
-  const sql = `
-      select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities,a.education, a.health, a.transportation , floor, vr_link a.status, a.rate, a.user_id, p.photos
-      from apartment as a
-      left join apartment_Photos as p
-      on a.id = p.apartment_id
-      where a.user_id = ?
-    `;
-  const [rows] = await pool.query(sql, [user_id]);
-
-  rows.forEach((row) => {
-    if (!apartments[row.id]) {
-      apartments[row.id] = {
-        ...row,
-        photos: [],
-      };
-    }
-
-    if (row.photos) {
-      apartments[row.id].photos.push(row.photos);
+      apartments[row.apartment_id].photos.push(row.photos);
     }
   });
 
@@ -208,8 +188,10 @@ export const getAllUserApartments = async (user_id) => {
 export const getApartmentById = async (apartment_id) => {
   let apartment = {};
   const sql = `
-    select a.id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, a.user_id, p.photos
+    select u.id as user_id, u.username, u.profile_picture, a.id as apartment_id, a.type, a.title, a.description, a.price, a.bedrooms, a.bathrooms, a.area, a.note, a.built_year, a.garages, a.latitude, a.longitude, a.amenities, a.education, a.health, a.transportation , a.floor, vr_link, a.status, a.rate, p.photos, view_count, created_at
     from apartment as a
+    inner join user as u
+    on u.id = a.user_id
     left join apartment_Photos as p
     on a.id = p.apartment_id
     where a.id = ?
@@ -218,10 +200,11 @@ export const getApartmentById = async (apartment_id) => {
   const connection = await pool.getConnection();
   try {
     connection.beginTransaction();
-    await connection.query(
+    const [result] = await connection.query(
       "update apartment set view_count = view_count +1 where id = ?",
       [apartment_id]
     );
+
     const [rows] = await connection.query(sql, [apartment_id]);
     connection.commit();
 
@@ -230,15 +213,15 @@ export const getApartmentById = async (apartment_id) => {
     }
 
     rows.forEach((row) => {
-      if (!apartment[row.id]) {
-        apartment[row.id] = {
+      if (!apartment[row.apartment_id]) {
+        apartment[row.apartment_id] = {
           ...row,
           photos: [],
         };
       }
 
       if (row.photos) {
-        apartment[row.id].photos.push(row.photos);
+        apartment[row.apartment_id].photos.push(row.photos);
       }
     });
 
@@ -386,6 +369,8 @@ export const deleteApartmentById = async (apartment_id) => {
     where id = ?
   `;
   await pool.query(sql, [apartment_id]);
+
+  return apartment_id;
 };
 
 export const dynamicUpdateApartmentById = async (
@@ -466,11 +451,7 @@ export const dynamicUpdateApartmentById = async (
   }
   if (amenities) {
     updates.push("amenities = ?");
-    params.push(amenities);
-  }
-  if (nearby) {
-    updates.push("nearby = ?");
-    params.push(nearby);
+    params.push(JSON.stringify(amenities));
   }
   if (floor) {
     updates.push("floor = ?");
@@ -514,6 +495,5 @@ export const dynamicUpdateApartmentById = async (
   if (result.affectedRows === 0) {
     throw new AppError(`no apartment found with ID ${apartment_id}`, 400);
   }
-
-  return result.affectedRows;
+  return apartment_id;
 };

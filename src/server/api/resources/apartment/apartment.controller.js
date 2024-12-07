@@ -1,10 +1,10 @@
-import e from "express";
 import catchAsync from "../../../utils/catchAsync.js";
 import * as apartmentService from "./apartment.service.js";
 
 export const createApartment = catchAsync(async (req, res, next) => {
   const apartment_id = await apartmentService.createApartment(
     req.body,
+    req.files,
     req.user.id
   );
 
@@ -67,24 +67,22 @@ export const updateApartmentById = catchAsync(async (req, res, next) => {
 });
 
 export const dynamicUpdateApartmentById = catchAsync(async (req, res, next) => {
-  const affectedRows = await apartmentService.dynamicUpdateApartmentById(
+  const apartmentId = await apartmentService.dynamicUpdateApartmentById(
     req.body,
     req.params.id
   );
 
   res.status(200).json({
     status: "success",
-    data: {
-      affectedRows,
-    },
+    message: `apartment with ID ${apartmentId} updated successfully`,
   });
 });
 
 export const deleteApartmentById = catchAsync(async (req, res, next) => {
-  await apartmentService.deleteApartmentById(req.params.id);
+  const apartmentId = await apartmentService.deleteApartmentById(req.params.id);
 
   res.status(200).json({
     status: "success",
+    message: `apartment with ID ${apartmentId} deleted successfully`,
   });
 });
-

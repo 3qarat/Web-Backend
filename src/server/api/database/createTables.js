@@ -8,14 +8,22 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS user (
         id INT PRIMARY KEY AUTO_INCREMENT,
         google_id VARCHAR(255) NULL,
-        username VARCHAR(50) NOT NULL UNIQUE,
+        username VARCHAR(50) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255),
+        profile_picture VARCHAR(255),
+        mobile_num VARCHAR(20) NOT NULL,
         registration_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        profile_picture VARCHAR(255) DEFAULT NULL,
         is_active TINYINT(1) NOT NULL DEFAULT 1
       )
     `);
+    // await pool.query(`
+    //     DROP TABLE IF EXISTS contact;
+    //   `)
+    // await pool.query(`
+    //   ALTER TABLE user
+    //   add mobile_num VARCHAR(20) NOT NULL
+    //   `)
 
     console.log("User table created successfully");
 
@@ -51,6 +59,17 @@ async function createTables() {
       )
     `);
 
+
+    await pool.query(`
+      ALTER TABLE apartment
+      MODIFY COLUMN type ENUM('شقة مفروشة', 'شقق', 'شاليهات', 'فيلات') NOT NULL;
+      `);
+
+    await pool.query(`
+      ALTER TABLE apartment
+      MODIFY COLUMN status ENUM('للبيع', 'للإيجار', 'تم البيع') NOT NULL;
+      `);
+
     console.log("Apartment table created successfully");
 
     // Create transactions table
@@ -74,7 +93,8 @@ async function createTables() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS feedback (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        rating INT NOT NULL,
+        comment TEXT NOT NULL,
+        rating FLOAT NOT NULL,
         feedback_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         apartment_id INT NOT NULL,
         user_id INT NOT NULL,
@@ -96,18 +116,6 @@ async function createTables() {
     `);
 
     console.log("Apartment Photos table created successfully");
-
-    // Create contact table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS contact (
-        user_id INT NOT NULL,
-        mobile_num VARCHAR(20) NOT NULL UNIQUE,
-        PRIMARY KEY (user_id, mobile_num),
-        FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-      )
-    `);
-
-    console.log("Contact table created successfully");
 
     // Create rented_sold_apartments table
     await pool.query(`
@@ -135,9 +143,75 @@ async function createTables() {
     `);
 
     console.log("Password Reset Token table created successfully");
+
+    // create user_favorites table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_favorites (
+      user_id INT,
+      apartment_id INT,
+      PRIMARY KEY (user_id, apartment_id),
+      FOREIGN KEY (user_id) REFERENCES user(id),
+      FOREIGN KEY (apartment_id) REFERENCES apartment(id)
+  );
+  `);
+
+    // await pool.query(`
+    // ALTER TABLE user_favorites RENAME TO user_favorite_apartments;
+    // `);
+
+    console.log("user favorites table created successfully");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS places (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      type ENUM( 'قطعة أرض','جراج', 'محل') NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      price DECIMAL(10, 2) NOT NULL,
+      area DECIMAL(10, 2) NOT NULL,
+      note TEXT,
+      latitude DECIMAL(9, 6),
+      longitude DECIMAL(9, 6),
+      address VARCHAR(255) NOT NULL,
+      floor_num INT,
+      vr_link VARCHAR(255),
+      status ENUM('تم البيع', 'للإيجار', 'للبيع') NOT NULL,
+      rate FLOAT,
+      view_count INT DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      user_id INT  NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+      );
+    `);
+
+    console.log("places table is created successfully");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS place_photos (
+      place_id INT NOT NULL,
+      photo VARCHAR(255) NOT NULL,
+      PRIMARY KEY (place_id, photo),
+      FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE
+      );
+      `);
+
+    console.log("place_photos table is created successfully");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_favorites_places (
+      user_id INT,
+      place_id INT,
+      PRIMARY KEY (user_id, place_id),
+      FOREIGN KEY (user_id) REFERENCES user(id),
+      FOREIGN KEY (place_id) REFERENCES apartment(id)
+  );
+      `);
+
+    console.log("user_favorite_places is created successfully");
   } catch (error) {
     console.error("Error creating tables:", error);
-  } 
+  }
 }
 
 export default createTables;

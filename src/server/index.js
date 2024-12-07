@@ -9,12 +9,20 @@ import cors from "cors";
 import session from "express-session";
 import passport from "passport";
 import createTables from "./api/database/createTables.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 //mw
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(cookieParser());
 app.use(
   session({
@@ -48,13 +56,13 @@ if (config.NODE_ENV == "development") {
     console.log(`app is listening on port ${PORT}`);
   });
 } else if (config.NODE_ENV == "production") {
-  createTables()
-    .then(() => {
-      app.listen(PORT, () => {
-        console.log(`app is listening on port ${PORT}`);
-      });
-    })
-    .catch((err) => {
-      console.error("Error creating tables:", error);
+createTables()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`app is listening on port ${PORT}`);
     });
+  })
+  .catch((err) => {
+    console.error("Error creating tables:", error);
+  });
 }

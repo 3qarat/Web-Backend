@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import pool from "../../database/index.js";
 import config from "../../../config/config.js";
-import { verifyPassword } from "./user.service.js";
+import { verifyPassword } from "./auth.service.js";
 
 //local strategy config
 passport.use(
@@ -15,7 +15,7 @@ passport.use(
     async (email, password, done) => {
       try {
         const [rows] = await pool.query(
-          "select id, username, email, password, profile_picture from user where email = ? ",
+          "select id, google_id, username, email, password, profile_picture, mobile_num from user where email = ? ",
           [email]
         );
 
@@ -89,7 +89,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   try {
     const [rows] = await pool.query(
-      "select id, username, email, profile_picture from user where id = ?",
+      "select id, google_id,  username, email, profile_picture, mobile_num from user where id = ?",
       [id]
     );
     done(null, rows[0]);
